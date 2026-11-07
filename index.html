@@ -38,9 +38,9 @@
         .guide-step.is-active .num { background: #10b981; color: #022c22; }
 
         /* Zoom controls sitting on top of the white canvas */
-        .zoom-btn { height: 3rem; min-width: 3rem; padding: 0 0.9rem; border-radius: 0.85rem; background: #1e293b; color: #f8fafc; border: 1px solid #475569; font-size: 1.6rem; font-weight: 700; line-height: 1; box-shadow: 0 4px 10px rgba(15, 23, 42, .3); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background-color .15s; }
+        .zoom-btn { height: 2rem; min-width: 2rem; padding: 0 0.6rem; border-radius: 0.6rem; background: #1e293b; color: #f8fafc; border: 1px solid #475569; font-size: 1.07rem; font-weight: 700; line-height: 1; box-shadow: 0 3px 7px rgba(15, 23, 42, .3); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; transition: background-color .15s; }
         .zoom-btn:hover { background: #334155; }
-        .zoom-btn .label { font-size: 1rem; font-weight: 700; }
+        .zoom-btn .label { font-size: 0.7rem; font-weight: 700; }
 
         button:focus-visible, select:focus-visible { outline: 3px solid #34d399; outline-offset: 2px; }
         button { touch-action: manipulation; }
@@ -54,7 +54,6 @@
             main { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
             /* result banner and breakdown float over the drawing instead of pushing things down */
             #feedback { position: absolute; top: 0.5rem; left: 0.5rem; right: 0.5rem; z-index: 40; margin: 0; font-size: 0.95rem; line-height: 1.35; padding: 0.55rem 0.8rem; box-shadow: 0 6px 18px rgba(0,0,0,.45); }
-            #explanation-box { display: none !important; }   /* no breakdown on phones */
         }
     </style>
 </head>
@@ -62,44 +61,25 @@
 
     <!-- Header -->
     <header class="bg-slate-800 border-b border-slate-700 py-3 px-5 hidden md:flex justify-between items-center gap-4 shadow">
-        <div>
+        <div class="flex items-center gap-5">
             <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Pharmacognosy Biosynthesis Trainer</h1>
-            <p class="text-base text-slate-300 mt-0.5 [@media(max-height:860px)]:hidden">Trace where every atom of a natural product comes from.</p>
+            <button onclick="openInstructions()" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-slate-500 transition cursor-pointer shadow">📖 INSTRUCTIONS</button>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="openEditModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-base transition cursor-pointer shadow">
-                ✏️ Edit compound
-            </button>
             <button id="author-toggle" onclick="toggleAuthorMode()" class="text-[10px] text-slate-400 opacity-30 hover:opacity-100 transition cursor-pointer px-2 py-1">✏️ author</button>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="flex-1 min-h-0 max-w-[1920px] w-full mx-auto p-2 md:p-4 xl:p-5 grid grid-cols-1 grid-rows-[minmax(0,1fr)] md:grid-rows-none xl:grid-cols-[minmax(250px,19%)_minmax(440px,32%)_minmax(0,1fr)] xl:grid-rows-[minmax(0,1fr)] gap-5 items-stretch md:items-start xl:items-stretch">
-
-        <!-- Left Column -->
-        <div class="hidden md:flex bg-slate-800 p-5 rounded-2xl border border-slate-700 flex-col space-y-5 shadow-sm xl:min-h-0 xl:overflow-y-auto">
-            <div>
-                <label for="molecule-select" class="sr-only">Compound</label>
-                <select id="molecule-select" class="w-full p-3.5 bg-slate-900 border-2 border-slate-600 rounded-xl text-xl font-bold text-emerald-300 focus:outline-none focus:border-emerald-500  cursor-pointer" onchange="selectMoleculeFromDropdown()">
-                </select>
-            </div>
-
-            <!-- How it works: the current step lights up as the student progresses -->
-            <ol id="guide-steps" class="space-y-1.5 bg-slate-900/70 border border-slate-700 rounded-2xl p-3">
-                <li class="guide-step" data-step="1"><span class="num">1</span><span class="text-xl leading-snug">Pick a pathway. It loads a colored brush.</span></li>
-                <li class="guide-step" data-step="2"><span class="num">2</span><span class="text-xl leading-snug">Click the atoms that come from that pathway in the molecule to the right.</span></li>
-                <li class="guide-step" data-step="3"><span class="num">3</span><span class="text-xl leading-snug">Switch pathways and keep painting until you've covered the whole molecule.</span></li>
-                <li class="guide-step" data-step="4"><span class="num">4</span><span class="text-xl leading-snug">Press <strong class="text-white">Check my answer</strong>.</span></li>
-				<li class="guide-step" data-step="4"><span class="num">5</span><span class="text-xl leading-snug">Press <strong class="text-white">I'm stuck, show me the answer</strong> if you give up </span></li>
-            </ol>
-
-            <p class="text-base text-slate-400">Shortcuts: press 1 to 5 to pick a pathway, E for the eraser.</p>
-        </div>
+    <main class="flex-1 min-h-0 max-w-[1920px] w-full mx-auto p-2 md:p-4 xl:p-5 grid grid-cols-1 grid-rows-[minmax(0,1fr)] md:grid-rows-none xl:grid-cols-[minmax(460px,34%)_minmax(0,1fr)] xl:grid-rows-[minmax(0,1fr)] gap-5 items-stretch md:items-start xl:items-stretch">
 
         <!-- Column 2: pathways, tools, check answer -->
         <div class="hidden md:block xl:min-h-0 xl:overflow-y-auto">
             <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl shadow-sm">
+                <label for="molecule-select" class="sr-only">Compound</label>
+                <select id="molecule-select" class="mb-4 w-full p-3.5 bg-slate-900 border-2 border-slate-600 rounded-xl text-xl font-bold text-emerald-300 focus:outline-none focus:border-emerald-500  cursor-pointer" onchange="selectMoleculeFromDropdown()">
+                </select>
+
                 <h3 class="text-2xl font-bold text-white">Choose a pathway</h3>
                 <p class="text-lg text-slate-300 mb-4">Each has its own color. Your answer is every color you paint.</p>
 
@@ -129,9 +109,10 @@
                 <div id="author-panel" class="hidden mt-4 p-3.5 rounded-xl border border-indigo-700 bg-indigo-950/40 space-y-3">
                     <p class="text-[11px] font-bold text-indigo-300 uppercase tracking-wider">✏️ author mode: paint the key, then add tolerance rules</p>
 
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-3 gap-2">
                         <button onclick="openAddModal()" title="Add a new compound from a SMILES string" class="py-2.5 px-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer">➕ Add molecule</button>
-                        <button onclick="removeCurrentMolecule()" title="Remove the compound that is open right now" class="py-2.5 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-950/60 hover:border-rose-700 text-xs font-semibold text-slate-200 hover:text-rose-300 cursor-pointer">🗑️ Remove this molecule</button>
+                        <button onclick="openEditModal()" title="Change this compound's name or SMILES" class="py-2.5 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">✏️ Edit compound</button>
+                        <button onclick="removeCurrentMolecule()" title="Remove the compound that is open right now" class="py-2.5 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-950/60 hover:border-rose-700 text-xs font-semibold text-slate-200 hover:text-rose-300 cursor-pointer">🗑️ Remove molecule</button>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
@@ -159,6 +140,7 @@
                     </div>
                     <div>
                         <button onclick="updateCode()" class="w-full py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold cursor-pointer">📝 Update code (saves this key too)</button>
+                        <button onclick="downloadUpdatedCode()" title="Downloads an updated index.html. Works even when Chrome refuses to write into your folder" class="w-full mt-1.5 py-2 px-3 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold cursor-pointer">⬇️ Download updated index.html (use this if Update code is blocked)</button>
                         <p class="text-[11px] text-slate-400 mt-1.5">Writes every compound and key straight into index.html. Chrome or Edge: pick your index.html the first time, then it's one click. Other browsers: you get a downloaded copy, or code to copy.</p>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
@@ -226,7 +208,7 @@
                 <!-- phone only: which brush is in hand -->
                 <div class="md:hidden absolute top-2 left-2 z-10 pointer-events-none max-w-[88%] flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-slate-300 shadow text-[13px] font-semibold text-slate-700">
                     <span id="m-brush-dot" class="w-3.5 h-3.5 rounded-full bg-slate-400 flex-shrink-0"></span>
-                    <span id="m-brush-text">Pick a pathway, then tap atoms.</span>
+                    <span id="m-brush-text">Pick a pathway below, then tap atoms</span>
                 </div>
 
                 <div id="rdkit-svg-container" class="w-full h-full flex justify-center items-center select-none">
@@ -240,12 +222,6 @@
 
             <div id="painted-summary" class="hidden md:flex w-full flex-wrap gap-2.5 mb-3 min-h-[36px]"></div>
 
-            <div id="explanation-box" class="w-full bg-emerald-950/40 border border-emerald-800/60 p-5 rounded-2xl hidden mb-3">
-                <span class="text-lg font-bold text-emerald-400 block mb-2">🧬 Biosynthetic breakdown</span>
-                <p id="explanation-text" class="text-lg text-slate-100 leading-relaxed"></p>
-                <div id="rules-note" class="text-base text-slate-300 mt-3 hidden"></div>
-                <a id="source-link" href="#" target="_blank" rel="noopener" class="hidden text-base text-emerald-400 hover:text-emerald-300 underline mt-3 inline-block">View source ↗</a>
-            </div>
             </div><!-- /canvas-wrap -->
             </div><!-- /stage -->
 
@@ -276,6 +252,23 @@
     </main>
 
     <!-- Modal: Edit Compound -->
+    <div id="instructions-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50" onclick="if (event.target === this) closeInstructions()">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-8">
+            <div class="flex items-start justify-between gap-4 mb-6">
+                <h2 class="text-3xl font-bold text-emerald-400">Instructions</h2>
+                <button onclick="closeInstructions()" class="text-slate-300 hover:text-white text-3xl leading-none px-2 cursor-pointer" aria-label="Close">✕</button>
+            </div>
+            <ol class="space-y-5 text-xl leading-relaxed text-slate-100">
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Pick one of the five biosynthetic pathways.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Click the atoms in the structure that derive from that biosynthetic pathway. Some molecules derive from multiple pathways. Use the eraser key if you make a mistake.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>Once you are done, press <strong class="text-white">"check my answer"</strong>. Any incorrect or missing assignments will be highlighted.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>If the molecule is too difficult, you can click <strong class="text-white">"I'm stuck, show me the answer"</strong>.</span></li>
+            </ol>
+            <p class="mt-7 text-base text-slate-400">Shortcuts: press 1 to 5 to pick a pathway, E for the eraser, and + / − to zoom.</p>
+            <button onclick="closeInstructions()" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold cursor-pointer">Got it</button>
+        </div>
+    </div>
+
     <div id="add-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-lg p-6 rounded-2xl shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -513,6 +506,7 @@
     function setupKeyboardShortcuts() {
         window.addEventListener('keydown', (e) => {
             if (e.metaKey || e.ctrlKey || e.altKey) return;
+            if (e.key === 'Escape') { closeInstructions(); return; }
             const tag = ((e.target && e.target.tagName) || '').toLowerCase();
             if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
 
@@ -694,13 +688,10 @@
 
         parseMolblock();
 
-        hideSourceLink();
         refreshDropdown();
         if (authorMode) paintAnswer(m);
 
         document.getElementById('feedback').classList.add('hidden');
-        document.getElementById('explanation-box').classList.add('hidden');
-        document.getElementById('rules-note').classList.add('hidden');
         document.getElementById('progress-indicator').textContent = `Compound ${currentIndex + 1} of ${masterDatabase.length}`;
         document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / masterDatabase.length) * 100}%`;
         document.getElementById('prev-btn').disabled = currentIndex === 0;
@@ -867,10 +858,11 @@
     function handlePathwayClick(pathway) {
         if (answered) return;
         activePathwayBrush = (activePathwayBrush === pathway) ? null : pathway;
+        if (activePathwayBrush) clearWarning();
         if (activePathwayBrush !== 'ALT') altDraft = null;
         renderPathwayOptions(); updateBrushBanner(); renderMoleculeSVG();
     }
-    function equipEraser()   { if (answered) return; activePathwayBrush = (activePathwayBrush === 'ERASER') ? null : 'ERASER'; altDraft = null; refreshTools(); }
+    function equipEraser()   { if (answered) return; activePathwayBrush = (activePathwayBrush === 'ERASER') ? null : 'ERASER'; if (activePathwayBrush) clearWarning(); altDraft = null; refreshTools(); }
     function equipCutTool()  { if (!authorMode || answered) return; activePathwayBrush = (activePathwayBrush === 'CUT_BOND') ? null : 'CUT_BOND'; altDraft = null; refreshTools(); }
     function equipDeleteAtomTool() { if (!authorMode || answered) return; activePathwayBrush = (activePathwayBrush === 'DELETE_ATOM') ? null : 'DELETE_ATOM'; altDraft = null; refreshTools(); }
     function equipOptionalTool() { if (!authorMode) return; activePathwayBrush = (activePathwayBrush === 'OPTIONAL') ? null : 'OPTIONAL'; altDraft = null; refreshTools(); }
@@ -932,6 +924,7 @@
             showWarning("🎨 Pick a pathway first to load its colored brush, then click atoms to paint them.");
             return;
         }
+        clearWarning();
 
         if (gradeResult) {
             gradeResult = null;
@@ -1045,6 +1038,12 @@
     /* ============================================================
        SIDE PANELS
        ============================================================ */
+    // hide the yellow "pick a pathway first" style warning (not the check-answer result)
+    function clearWarning() {
+        const fb = document.getElementById('feedback');
+        if (fb.classList.contains('bg-amber-950')) fb.classList.add('hidden');
+    }
+
     function showWarning(msg) {
         const fb = document.getElementById('feedback');
         fb.classList.remove('hidden');
@@ -1132,7 +1131,8 @@
     function renderSubunitPanel() {
         const panel = document.getElementById('subunit-panel');
         const p = activePathwayBrush;
-        if (answered || !p || p === ISO || !PATHWAY_STYLES[p]) { panel.classList.add('hidden'); return; }
+        // the extra "sub-unit" panel is no longer used: only the isoprene units panel exists now
+        panel.classList.add('hidden'); return;
 
         const style = PATHWAY_STYLES[p];
         const code = PATH_CODES[p];
@@ -1316,7 +1316,7 @@
         if (mEr) mEr.className = (activePathwayBrush === 'ERASER') ? M_ERASER_ON : M_ERASER_OFF;
         const chipText = document.getElementById('m-brush-text'), chipDot = document.getElementById('m-brush-dot');
         if (chipText && chipDot) {
-            let label = 'Pick a pathway, then tap atoms', col = '#94a3b8';
+            let label = 'Pick a pathway below, then tap atoms', col = '#94a3b8';
             if (answered) { label = keyRevealed ? 'Answer shown' : 'Checked'; }
             else if (activePathwayBrush === 'ERASER') { label = 'Eraser: tap painted atoms'; col = '#e11d48'; }
             else if (PATHWAY_STYLES[activePathwayBrush]) { label = 'Painting: ' + MOBILE_NAMES[activePathwayBrush].replace(/&shy;/g, ''); col = PATHWAY_STYLES[activePathwayBrush].hex; }
@@ -1639,10 +1639,6 @@
             fb.textContent = `✅ Correct — ${m.pathways.join(" + ")}, ${Object.keys(atomHighlights).length} atoms mapped` +
                 (result.toleranceUsed ? ` (${result.toleranceUsed} atom${result.toleranceUsed === 1 ? '' : 's'} accepted under tolerance rules)` : '');
 
-            document.getElementById('explanation-text').textContent = m.info || "";
-            document.getElementById('explanation-box').classList.remove('hidden');
-            showRulesNote(m);
-            showSourceLink(m);
             activePathwayBrush = null;
         } else {
             fb.className = "w-full text-center py-2.5 px-4 rounded-lg text-xs font-semibold bg-rose-950 text-rose-300 border border-rose-800 mb-4 shadow";
@@ -1659,15 +1655,6 @@
         renderMoleculeSVG();
     }
 
-    function showRulesNote(m) {
-        const el = document.getElementById('rules-note');
-        const bits = [];
-        if (m.rules) bits.push(m.rules);
-        if (!bits.length) { el.classList.add('hidden'); return; }
-        el.innerHTML = `<strong class="text-slate-300">Tolerance applied:</strong> ${bits.join(" ")}`;
-        el.classList.remove('hidden');
-    }
-
     function revealKey() {
         const m = masterDatabase[currentIndex];
         answered = true;
@@ -1676,7 +1663,6 @@
         activePathwayBrush = null;
         paintAnswer(m);
         document.getElementById('feedback').classList.add('hidden');
-        document.getElementById('explanation-box').classList.add('hidden');
         updateActionButton();
         renderPathwayOptions();
         updateBrushBanner();
@@ -1693,16 +1679,9 @@
         activePathwayBrush = null;
 
         document.getElementById('feedback').classList.add('hidden');
-        document.getElementById('explanation-box').classList.add('hidden');
 
         updateActionButton(); renderPathwayOptions(); updateBrushBanner(); renderMoleculeSVG();
     }
-
-    function showSourceLink(m) {
-        const a = document.getElementById('source-link');
-        if (m.url) { a.href = m.url; a.classList.remove('hidden'); } else a.classList.add('hidden');
-    }
-    function hideSourceLink() { document.getElementById('source-link').classList.add('hidden'); }
 
     function paintAnswer(m) {
         if (!currentMol) return;
@@ -1875,7 +1854,6 @@
         }
         authorMode = !authorMode;
         document.getElementById('author-panel').classList.toggle('hidden', !authorMode);
-        document.getElementById('guide-steps').classList.toggle('hidden', authorMode);
         document.getElementById('author-toggle').style.opacity = authorMode ? '1' : '';
         loadMolecule();
     }
@@ -2037,6 +2015,9 @@
     /* ============================================================
        COMPOUND EDITING + NAVIGATION
        ============================================================ */
+    function openInstructions() { document.getElementById('instructions-modal').classList.remove('hidden'); }
+    function closeInstructions() { document.getElementById('instructions-modal').classList.add('hidden'); }
+
     let modalMode = 'edit';
     function setModalMode(mode) {
         modalMode = mode;
@@ -2386,6 +2367,13 @@
         showAuthorFeedback(`✅ Updated ${masterDatabase.length} compound(s) in ${where}. Reload the page to see it load from the file.`);
     }
 
+    // Always works (no folder permissions needed): downloads a copy of this page with the current compounds and keys
+    async function downloadUpdatedCode() {
+        if (!authorMode) return;
+        if (Object.keys(atomHighlights).length > 0) saveAuthorKey(false);
+        await updateCodeFallback();
+    }
+
     async function updateCode() {
         if (!authorMode) return;
         // Whatever is painted on the open compound is the key being edited, so save it first
@@ -2410,15 +2398,18 @@
             await writable.close();
             finishCodeUpdate(handle.name);
         } catch (e) {
-            if (e && e.name === 'AbortError') return;   // file picker was cancelled
+            if (e && e.name === 'AbortError') {   // cancelled, OR Chrome refused the folder before handing the file over
+                showAuthorFeedback('No file was picked. If Chrome said the folder "contains system files" (it does this for Ubuntu/WSL folders), use ⬇️ Download updated index.html instead.', false);
+                return;
+            }
             if (e && e.name === 'NotFoundError') await forgetCodeFile();
             console.error(e);
-            showAuthorFeedback(`Couldn't write the file (${(e && e.message) || e}). Click Update code to try again, or use Export All Keys to copy the code.`, false);
+            await updateCodeFallback(`Couldn't write to the file directly (${(e && e.message) || e}).`);
         }
     }
 
     // Browsers without file-writing support (Firefox, Safari)
-    async function updateCodeFallback() {
+    async function updateCodeFallback(prefix) {
         try {
             const resp = await fetch(location.href, { cache: 'no-store' });
             if (!resp.ok) throw new Error('could not read the page source');
@@ -2429,7 +2420,7 @@
             a.href = url; a.download = 'index.html';
             document.body.appendChild(a); a.click(); a.remove();
             setTimeout(() => URL.revokeObjectURL(url), 2000);
-            showAuthorFeedback(`⬇️ Downloaded an updated index.html with ${masterDatabase.length} compound(s). Replace your old file with it.`);
+            showAuthorFeedback(`${prefix ? prefix + ' ' : ''}⬇️ Downloaded an updated index.html with ${masterDatabase.length} compound(s). Replace your old file with it.`);
         } catch (e) {
             exportAuthorKeys();
             showAuthorFeedback(`This browser can't edit the file directly (Chrome or Edge can). The code for all ${masterDatabase.length} compounds is listed below, one per line. Paste it over the list in your file.`);

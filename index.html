@@ -42,6 +42,9 @@
         .zoom-btn .label { font-size: 0.7rem; font-weight: 700; }
 
         /* Isoprene unit chips (desktop panel and phone strip) */
+        .g-count-btn { flex: 1; padding: 0.6rem 0; border-radius: 0.75rem; font-weight: 700; font-size: 1.25rem; color: #e2e8f0; background: #0f172a; border: 2px solid #475569; cursor: pointer; }
+        .g-count-btn.is-on { background: #d97706; border-color: #fbbf24; color: #fff; }
+        .g-count-btn span { display: block; font-size: 0.75rem; font-weight: 600; opacity: 0.8; }
         .iso-chip { flex: none; display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 0.6rem; font-weight: 700; color: #e2e8f0; background: #1e293b; border: 2px solid #475569; cursor: pointer; transition: background-color .15s, border-color .15s; }
         .iso-chip:hover { background: #334155; }
         .iso-chip.is-on { border-color: #ffffff; background: #334155; color: #ffffff; box-shadow: 0 0 0 2px #0d9971; }
@@ -369,7 +372,15 @@
         <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92%] overflow-y-auto p-5 md:p-8">
             <div class="mb-4 rounded-xl border border-amber-500/50 bg-amber-500/10 px-4 py-2.5 text-amber-200 text-sm md:text-base font-semibold">Valfritt utmaningsläge. Du behöver det inte för att öva.</div>
             <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-1">⚔️ Utmaningsläge</h2>
-            <p class="text-base md:text-lg text-slate-300 mb-4"><span id="g-start-count">10</span> slumpade strukturer, en i taget. Slå klockan.</p>
+            <p class="text-base md:text-lg text-slate-300 mb-3">Slumpade strukturer, en i taget. Slå klockan.</p>
+            <div class="mb-5">
+                <div class="text-sm md:text-base font-semibold text-slate-300 mb-2">Hur många strukturer?</div>
+                <div id="g-count-pick" class="flex gap-2">
+                    <button type="button" class="g-count-btn" data-n="5" onclick="pickGauntletCount(5)">5<span>Snabb runda</span></button>
+                    <button type="button" class="g-count-btn" data-n="10" onclick="pickGauntletCount(10)">10<span>Normal</span></button>
+                    <button type="button" class="g-count-btn" data-n="15" onclick="pickGauntletCount(15)">15<span>Lång</span></button>
+                </div>
+            </div>
             <ul class="space-y-3 text-base md:text-lg leading-snug text-slate-100">
                 <li>⏱️ <strong class="text-white">3 minuter</strong> per struktur. Ju snabbare du blir klar, desto fler poäng.</li>
                 <li>✅ Du får bara poäng om <strong class="text-white">hela strukturen är rätt</strong>.</li>
@@ -1280,10 +1291,22 @@
         const isLast = neighbourIndex(1) === null;
         // phone buttons (inline display so the brush-highlight code can't undo it)
         const showM = (id, visible) => { const el = document.getElementById(id); if (el) el.style.display = visible ? '' : 'none'; };
-        showM('m-check-btn', !answered && !authorMode);
+        const mNext = mobileNextVisible();
+        showM('m-check-btn', (!answered || mNext) && !authorMode);
         showM('m-eraser-btn', !answered && !authorMode);
         showM('m-reveal-btn', !answered && !authorMode);
-        showM('m-next-structure-btn', mobileNextVisible());
+        // phone: once the answer is right, the big bottom-right button becomes "Next structure"
+        const mCheck = document.getElementById('m-check-btn');
+        if (mCheck) {
+            const mBase = "min-h-[52px] rounded-xl font-bold px-2 transition cursor-pointer text-white ";
+            if (mNext) {
+                mCheck.textContent = (inG && gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Se slutresultatet' : 'Nästa struktur ➡️';
+                mCheck.className = mBase + "flex-[2] text-base border-2 border-indigo-300 bg-indigo-600 active:bg-indigo-700 shadow-md";
+            } else {
+                mCheck.textContent = '✅ Kontrollera svar';
+                mCheck.className = mBase + "flex-[1.4] text-[15px] bg-emerald-600 active:bg-emerald-700";
+            }
+        }
         const mClear = document.getElementById('m-clear-btn');
         if (mClear) { mClear.textContent = answered ? '↺ Börja om' : '🗑️ Rensa allt'; mClear.style.display = (inG && answered) ? 'none' : ''; }
         btn.disabled = false;
@@ -1412,15 +1435,6 @@
             me.style.display = (answered || authorMode) ? 'none' : '';
             me.onclick = equipEraser;
             mGrid.appendChild(me);
-
-            // after a correct answer the eraser's spot becomes "Next Structure", so the top of the screen is never needed
-            const mn = document.createElement('button');
-            mn.id = 'm-next-structure-btn';
-            mn.className = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[14px] font-bold transition border-[3px] border-indigo-300 bg-indigo-600 text-white";
-            mn.textContent = (gauntletActive() && gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Slutresultat' : 'Nästa struktur ➡️';
-            mn.style.display = mobileNextVisible() ? '' : 'none';
-            mn.onclick = () => { if (gauntletActive()) gauntletNext(); else nextMolecule(); };
-            mGrid.appendChild(mn);
         }
     }
 
@@ -2605,8 +2619,9 @@
     /* ============================================================
        THE GAUNTLET (competition mode: desktop and phone)
        ============================================================ */
-    const G_COUNT = 10, G_LIMIT_S = 180, G_PENALTY_S = 15, G_SET_TOLERANCE = 0.20;
+    const G_COUNTS = [5, 10, 15], G_LIMIT_S = 180, G_PENALTY_S = 15, G_SET_TOLERANCE = 0.20;
     let gauntlet = null;                 // null while not playing
+    let gauntletCount = 10;              // round length the student picked on the start screen (5, 10 or 15)
 
     function gauntletActive() { return gauntlet !== null && gauntlet.active; }
 
@@ -2659,11 +2674,11 @@
         return idx;
     }
 
-    // random set of 10 whose total number of atoms is within +/-20% of "10 x the average compound", so every
+    // random set of N whose total number of atoms is within +/-20% of "N x the average compound", so every
     // student faces about the same amount of work
     function gauntletPickSet() {
         const pool = gauntletPool();
-        const size = Math.min(G_COUNT, pool.length);
+        const size = Math.min(gauntletCount, pool.length);
         const atoms = {}; pool.forEach(i => { atoms[i] = gauntletBreakdown(masterDatabase[i]).total; });
         const mean = pool.reduce((a, i) => a + atoms[i], 0) / pool.length;
         const target = mean * size;
@@ -2687,8 +2702,20 @@
         if (authorMode) { alert("Leave author mode before starting the Gauntlet."); return; }
         if (!currentMol) return;                       // chemistry engine still loading
         if (!gauntletPool().length) { alert("Det finns inga medelsvåra eller svåra strukturer med svarsnyckel än."); return; }
-        document.getElementById('g-start-count').textContent = Math.min(G_COUNT, gauntletPool().length);
+        pickGauntletCount(gauntletCount);
         document.getElementById('gauntlet-start-modal').classList.remove('hidden');
+    }
+    // round length buttons on the start screen; a length bigger than the number of available structures is greyed out
+    function pickGauntletCount(n) {
+        const max = gauntletPool().length;
+        if (n > max) n = G_COUNTS.filter(c => c <= max).pop() || max;
+        gauntletCount = n;
+        document.querySelectorAll('#g-count-pick .g-count-btn').forEach(b => {
+            const c = Number(b.dataset.n);
+            b.classList.toggle('is-on', c === n);
+            b.disabled = c > max;
+            b.style.opacity = c > max ? '0.35' : '';
+        });
     }
     function closeGauntletStart() { document.getElementById('gauntlet-start-modal').classList.add('hidden'); }
     function closeGauntletFinal() { document.getElementById('gauntlet-final-modal').classList.add('hidden'); }

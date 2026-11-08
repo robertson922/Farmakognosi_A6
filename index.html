@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Pharmacognosy Multi-Pathway &amp; Biosynthesis Trainer</title>
+    <title>Farmakognosi – biosyntesträning</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
@@ -87,11 +87,11 @@
     <!-- Header -->
     <header class="bg-slate-800 border-b border-slate-700 py-3 px-5 hidden lg:flex justify-between items-center gap-4 shadow">
         <div class="flex items-center gap-5">
-            <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Pharmacognosy Biosynthesis Trainer</h1>
-            <button onclick="openInstructions()" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-slate-500 transition cursor-pointer shadow">📖 INSTRUCTIONS</button>
+            <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Farmakognosi: biosyntesträning</h1>
+            <button onclick="openInstructions()" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-slate-500 transition cursor-pointer shadow">📖 INSTRUKTIONER</button>
         </div>
         <div class="flex items-center gap-4">
-            <button id="g-open-btn" onclick="openGauntletStart()" title="An optional timed challenge. You do not need it to practise." class="px-4 py-2 rounded-xl border-2 border-dashed border-amber-500/70 text-amber-300 hover:bg-amber-500/10 text-sm font-semibold transition cursor-pointer">⚔️ Want a challenge? <strong class="text-amber-200 tracking-wide">THE GAUNTLET</strong></button>
+            <button id="g-open-btn" onclick="openGauntletStart()" title="En valfri utmaning på tid. Du behöver den inte för att öva." class="px-4 py-2 rounded-xl border-2 border-dashed border-amber-500/70 text-amber-300 hover:bg-amber-500/10 text-sm font-semibold transition cursor-pointer">⚔️ Vill du ha en utmaning? <strong class="text-amber-200 tracking-wide">UTMANINGSLÄGE</strong></button>
             <button id="author-toggle" onclick="toggleAuthorMode()" class="text-[10px] text-slate-400 opacity-30 hover:opacity-100 transition cursor-pointer px-2 py-1">✏️ author</button>
         </div>
     </header>
@@ -99,33 +99,33 @@
     <!-- Main Container -->
     <main id="app-main" class="flex-1 min-h-0 max-w-[1920px] w-full mx-auto p-2 lg:p-4 xl:p-5 grid grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(400px,34%)_minmax(0,1fr)] gap-5 items-stretch">
 
-        <div id="col-resizer" role="separator" aria-orientation="vertical" aria-label="Drag to resize the panels" title="Drag to resize. Double-click to reset."></div>
+        <div id="col-resizer" role="separator" aria-orientation="vertical" aria-label="Dra för att ändra panelernas storlek" title="Dra för att ändra storlek. Dubbelklicka för att återställa."></div>
 
         <!-- Left column (desktop): pathways, tools, check answer -->
         <div id="left-col" class="hidden lg:block lg:min-h-0 lg:overflow-y-auto">
             <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl shadow-sm">
-                <label for="molecule-select" class="sr-only">Compound</label>
+                <label for="molecule-select" class="sr-only">Förening</label>
                 <select id="molecule-select" class="mb-4 w-full p-3.5 bg-slate-900 border-2 border-slate-600 rounded-xl text-xl font-bold text-emerald-300 focus:outline-none focus:border-emerald-500  cursor-pointer" onchange="selectMoleculeFromDropdown()">
                 </select>
 
-                <h3 class="text-2xl font-bold text-white">Choose a pathway</h3>
-                <p class="text-lg text-slate-300 mb-4">Each has its own color. Your answer is every color you paint.</p>
+                <h3 class="text-2xl font-bold text-white">Välj en biosyntesväg.</h3>
+                <p class="text-lg text-slate-300 mb-4">Varje väg har en egen färg. Markera sedan de atomer i strukturen som kommer från den vägen.</p>
 
                 <div id="pathway-options" class="grid grid-cols-2 gap-3.5 mb-4"></div>
 
                 <div id="check-bar">
                 <button id="action-btn" onclick="handleActionButton()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-4 px-5 rounded-2xl text-xl transition shadow-md cursor-pointer">
-                    ✅ Check my answer
+                    ✅ Kontrollera mitt svar
                 </button>
-                <button onclick="confirmClearAll()" title="Remove all paint and start over" class="w-full mt-2.5 py-3 px-3 rounded-2xl border-2 border-slate-600 bg-slate-900 hover:bg-rose-950/60 hover:border-rose-700 text-base font-semibold text-slate-100 hover:text-rose-300 transition cursor-pointer">
-                    🗑️ Clear all
+                <button onclick="confirmClearAll()" title="Ta bort all färg och börja om" class="w-full mt-2.5 py-3 px-3 rounded-2xl border-2 border-slate-600 bg-slate-900 hover:bg-rose-950/60 hover:border-rose-700 text-base font-semibold text-slate-100 hover:text-rose-300 transition cursor-pointer">
+                    🗑️ Rensa allt
                 </button>
                 </div>
 
                 <!-- Kept apart from the buttons students use while testing their answer -->
                 <div id="reveal-zone" class="mt-4 pt-4 border-t border-slate-700">
-                    <button id="giveup-btn" onclick="giveUp()" title="Give up and show the answer" class="w-full py-3 px-4 rounded-2xl border-2 border-slate-700 bg-slate-900 hover:bg-amber-950/50 hover:border-amber-700 text-base font-semibold text-slate-400 hover:text-amber-300 transition cursor-pointer">
-                        💡 I'm stuck, show me the answer
+                    <button id="giveup-btn" onclick="giveUp()" title="Ge upp och visa svaret" class="w-full py-3 px-4 rounded-2xl border-2 border-slate-700 bg-slate-900 hover:bg-amber-950/50 hover:border-amber-700 text-base font-semibold text-slate-400 hover:text-amber-300 transition cursor-pointer">
+                        💡 Jag har fastnat, visa svaret
                     </button>
                 </div>
 
@@ -196,8 +196,8 @@
             <div id="gauntlet-hud" class="hidden max-lg:hidden w-full mb-3 rounded-xl border-2 border-amber-500/70 bg-slate-900 px-4 py-3">
                 <div id="g-run" class="flex items-center gap-6">
                     <div class="shrink-0">
-                        <div class="text-amber-400 font-bold text-lg tracking-wide">⚔️ THE GAUNTLET <span class="ml-1 text-xs font-semibold text-amber-300/80 tracking-wider">CHALLENGE MODE</span></div>
-                        <div id="g-progress" class="text-slate-300 text-base">Structure 1 of 10</div>
+                        <div class="text-amber-400 font-bold text-lg tracking-wide">⚔️ UTMANINGSLÄGE <span class="ml-1 text-xs font-semibold text-amber-300/80 tracking-wider">PÅ TID</span></div>
+                        <div id="g-progress" class="text-slate-300 text-base">Struktur 1 av 10</div>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-baseline justify-center gap-3">
@@ -207,18 +207,18 @@
                         <div class="mt-1 h-2 bg-slate-700 rounded-full overflow-hidden"><div id="g-bar" class="h-full bg-emerald-500" style="width: 100%"></div></div>
                     </div>
                     <div class="text-right shrink-0">
-                        <div class="text-slate-300 text-sm">Time bonus</div>
+                        <div class="text-slate-300 text-sm">Tidsbonus</div>
                         <div id="g-mult" class="text-3xl font-bold text-amber-300 tabular-nums">200%</div>
-                        <div id="g-drop" class="text-slate-400 text-sm">falls to 50%</div>
+                        <div id="g-drop" class="text-slate-400 text-sm">sjunker till 50 %</div>
                     </div>
                     <div class="flex flex-col gap-1.5 shrink-0">
-                        <button onclick="gauntletSkip()" class="px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold cursor-pointer">⏭️ Skip (0 pts)</button>
-                        <button onclick="quitGauntlet()" class="px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-950 text-slate-300 text-sm font-semibold cursor-pointer">✕ Quit</button>
+                        <button onclick="gauntletSkip()" class="px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold cursor-pointer">⏭️ Hoppa över (0 p)</button>
+                        <button onclick="quitGauntlet()" class="px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-950 text-slate-300 text-sm font-semibold cursor-pointer">✕ Avsluta</button>
                     </div>
                 </div>
                 <div id="g-done" class="hidden flex items-center justify-between gap-6">
                     <div id="g-done-text" class="text-xl font-bold text-slate-100"></div>
-                    <button id="g-next-btn" onclick="gauntletNext()" class="shrink-0 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-lg font-bold cursor-pointer shadow">Next structure ➔</button>
+                    <button id="g-next-btn" onclick="gauntletNext()" class="shrink-0 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-lg font-bold cursor-pointer shadow">Nästa struktur ➔</button>
                 </div>
             </div>
 
@@ -226,14 +226,14 @@
 
             <div id="m-compound-header" class="lg:hidden w-full shrink-0 pb-2">
                 <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2">
-                    <button onclick="openMobileInstructions()" class="justify-self-start min-h-[38px] px-2 rounded-lg bg-slate-700 active:bg-slate-600 border border-slate-500 text-slate-100 text-[10px] font-bold tracking-wide">INSTRUCTIONS</button>
+                    <button onclick="openMobileInstructions()" class="justify-self-start min-h-[38px] px-2 rounded-lg bg-slate-700 active:bg-slate-600 border border-slate-500 text-slate-100 text-[10px] font-bold tracking-wide">INSTRUKTIONER</button>
                     <!-- the compound title doubles as the compound picker: a see-through native <select> sits on top of it, so a tap opens the phone's own list (grouped Easy / Medium / Hard) -->
                     <div class="relative min-h-[38px] flex items-center cursor-pointer">
-                        <span id="m-compound-title" class="text-[clamp(15px,4.4vw,18px)] font-bold text-slate-100 whitespace-nowrap border-b-2 border-dashed border-slate-500">Compound 1 of 1</span>
+                        <span id="m-compound-title" class="text-[clamp(15px,4.4vw,18px)] font-bold text-slate-100 whitespace-nowrap border-b-2 border-dashed border-slate-500">Förening 1 av 1</span>
                         <span class="ml-1 text-slate-300 text-sm" aria-hidden="true">▾</span>
-                        <select id="m-molecule-select" aria-label="Choose a compound" onchange="selectMoleculeFromDropdown(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></select>
+                        <select id="m-molecule-select" aria-label="Välj en förening" onchange="selectMoleculeFromDropdown(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></select>
                     </div>
-                    <button onclick="openGauntletStart()" aria-label="Optional challenge: The Gauntlet" title="Optional challenge" class="justify-self-end min-h-[38px] px-1.5 rounded-lg border-2 border-dashed border-amber-500/70 text-amber-300 active:bg-amber-500/10 text-[9px] font-bold tracking-wide whitespace-nowrap"><span class="text-base leading-none">⚔️</span><span class="hidden min-[410px]:inline"> CHALLENGE</span></button>
+                    <button onclick="openGauntletStart()" aria-label="Valfri utmaning: utmaningsläge" title="Valfri utmaning" class="justify-self-end min-h-[38px] px-1.5 rounded-lg border-2 border-dashed border-amber-500/70 text-amber-300 active:bg-amber-500/10 text-[9px] font-bold tracking-wide whitespace-nowrap"><span class="text-base leading-none">⚔️</span><span class="hidden min-[410px]:inline"> UTMANING</span></button>
                 </div>
                 <div class="mt-1.5 h-2 bg-slate-700 rounded-full overflow-hidden"><div id="m-progress-bar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div></div>
             </div>
@@ -246,7 +246,7 @@
                         <div id="mg-timer" class="font-mono tabular-nums text-3xl font-bold text-emerald-400">3:00</div>
                         <div class="text-right leading-tight">
                             <div id="mg-mult" class="text-amber-300 font-bold text-xl tabular-nums">200%</div>
-                            <div id="mg-drop" class="text-slate-400 text-[11px]">falls to 50%</div>
+                            <div id="mg-drop" class="text-slate-400 text-[11px]">sjunker till 50 %</div>
                         </div>
                     </div>
                     <div class="mt-1 flex items-center gap-2">
@@ -256,21 +256,21 @@
                 </div>
                 <div id="mg-done" class="hidden">
                     <div id="mg-done-text" class="text-base font-bold text-slate-100 leading-snug"></div>
-                    <div class="text-slate-400 text-xs mt-1">Tap <strong class="text-slate-200">Next Structure</strong> (bottom right) to continue.</div>
+                    <div class="text-slate-400 text-xs mt-1">Tryck på <strong class="text-slate-200">Nästa struktur</strong> (nere till höger) för att fortsätta.</div>
                 </div>
             </div>
 
             <!-- Phone: Back / Show Answer / Forward sit directly under the compound number -->
             <div id="m-nav" class="lg:hidden w-full shrink-0 flex gap-1.5 pb-2">
-                    <button id="m-prev-btn" onclick="prevMolecule()" class="flex-1 min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-slate-700 active:bg-slate-600 text-slate-100 disabled:opacity-40">⬅️ Back</button>
-                    <button id="m-reveal-btn" onclick="giveUp()" class="flex-[1.4] min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-amber-600 active:bg-amber-700 text-white">💡 Show Answer</button>
-                    <button id="m-next-btn" onclick="nextMolecule()" class="flex-1 min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-indigo-600 active:bg-indigo-700 text-white disabled:opacity-40">Forward ➡️</button>
+                    <button id="m-prev-btn" onclick="prevMolecule()" class="flex-1 min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-slate-700 active:bg-slate-600 text-slate-100 disabled:opacity-40">⬅️ Bakåt</button>
+                    <button id="m-reveal-btn" onclick="giveUp()" class="flex-[1.4] min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-amber-600 active:bg-amber-700 text-white">💡 Visa svar</button>
+                    <button id="m-next-btn" onclick="nextMolecule()" class="flex-1 min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-indigo-600 active:bg-indigo-700 text-white disabled:opacity-40">Framåt ➡️</button>
             </div>
 
             <!-- Phone, Gauntlet only: Skip / Quit replace Back / Show Answer / Forward -->
             <div id="mg-nav" class="hidden lg:hidden w-full shrink-0 flex gap-1.5 pb-2">
-                <button onclick="gauntletSkip()" class="flex-[1.4] min-h-[46px] rounded-xl text-[14px] font-bold px-2 border-2 border-slate-600 bg-slate-800 text-slate-100 active:bg-slate-700">⏭️ Skip (0 pts)</button>
-                <button onclick="quitGauntlet()" class="flex-1 min-h-[46px] rounded-xl text-[14px] font-bold px-2 border-2 border-slate-600 bg-slate-800 text-slate-300 active:bg-rose-950">✕ Quit</button>
+                <button onclick="gauntletSkip()" class="flex-[1.4] min-h-[46px] rounded-xl text-[14px] font-bold px-2 border-2 border-slate-600 bg-slate-800 text-slate-100 active:bg-slate-700">⏭️ Hoppa över (0 p)</button>
+                <button onclick="quitGauntlet()" class="flex-1 min-h-[46px] rounded-xl text-[14px] font-bold px-2 border-2 border-slate-600 bg-slate-800 text-slate-300 active:bg-rose-950">✕ Avsluta</button>
             </div>
 
             <!-- the drawing and the banners that float over it; about 2.5% shorter than before, the freed space goes to the buttons below -->
@@ -280,38 +280,38 @@
 
             <div class="w-full hidden lg:flex flex-wrap items-center justify-between bg-slate-900 px-5 py-3 rounded-2xl border border-slate-700 mb-4 gap-3">
                 <div class="flex items-center gap-3 flex-wrap">
-                    <span class="text-lg font-semibold text-slate-300">Painting with:</span>
+                    <span class="text-lg font-semibold text-slate-300">Färgar med:</span>
                     <div id="active-brush-badge" class="flex items-center gap-3 px-4 py-2 rounded-xl text-lg font-bold bg-slate-800 text-slate-400 border-2 border-slate-700">
                         <span id="active-brush-dot" class="w-5 h-5 rounded-full bg-slate-600 inline-block"></span>
-                        <span id="active-brush-name">Nothing yet. Pick a pathway first.</span>
+                        <span id="active-brush-name">Inget ännu. Välj en väg först.</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
                     <span id="cut-counter" class="text-base text-rose-400 font-mono hidden">0 cuts</span>
-                    <span id="atom-counter" class="text-lg font-semibold text-slate-300">0 atoms painted</span>
+                    <span id="atom-counter" class="text-lg font-semibold text-slate-300">0 atomer färgade</span>
                 </div>
             </div>
 
-            <p id="viewport-hint" class="hidden lg:block w-full text-base font-semibold text-slate-300 mb-2">Click an atom to paint it. Drag to move the molecule. Scroll or pinch to zoom.</p>
+            <p id="viewport-hint" class="hidden lg:block w-full text-base font-semibold text-slate-300 mb-2">Klicka på en atom för att färga den. Dra för att flytta molekylen. Scrolla eller nyp för att zooma.</p>
 
             <div id="viewport-box" class="w-full flex flex-col items-center justify-center bg-white rounded-2xl border-2 border-slate-600 flex-1 min-h-0 lg:min-h-[320px] mb-0 lg:mb-4 relative overflow-hidden cursor-crosshair">
                 <div id="zoom-controls" class="absolute top-3 left-3 z-20 hidden lg:flex items-center gap-2" onpointerdown="event.stopPropagation()">
-                    <button class="zoom-btn" onclick="zoomBy(1/1.25)" title="Zoom out (-)" aria-label="Zoom out">&minus;</button>
-                    <button class="zoom-btn" onclick="zoomBy(1.25)" title="Zoom in (+)" aria-label="Zoom in">+</button>
-                    <button class="zoom-btn" onclick="resetZoomPan()" title="Put the molecule back in the middle (0)" aria-label="Reset view"><span aria-hidden="true">⟲</span><span class="label hidden sm:inline">Reset view</span></button>
+                    <button class="zoom-btn" onclick="zoomBy(1/1.25)" title="Zooma ut (-)" aria-label="Zooma ut">&minus;</button>
+                    <button class="zoom-btn" onclick="zoomBy(1.25)" title="Zooma in (+)" aria-label="Zooma in">+</button>
+                    <button class="zoom-btn" onclick="resetZoomPan()" title="Flytta tillbaka molekylen till mitten (0)" aria-label="Återställ vy"><span aria-hidden="true">⟲</span><span class="label hidden sm:inline">Återställ vy</span></button>
                 </div>
 
                 <!-- phone only: which brush is in hand -->
                 <div class="lg:hidden absolute top-2 left-2 z-10 pointer-events-none max-w-[88%] flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-slate-300 shadow text-[13px] font-semibold text-slate-700">
                     <span id="m-brush-dot" class="w-3.5 h-3.5 rounded-full bg-slate-400 flex-shrink-0"></span>
-                    <span id="m-brush-text">Pick a pathway below, then tap atoms</span>
+                    <span id="m-brush-text">Välj en väg nedan och tryck på atomer</span>
                 </div>
 
                 <!-- isoprene unit picker (phone and desktop): floats over the bottom of the drawing, so nothing else moves when it appears -->
                 <div id="m-iso-units" class="hidden" onpointerdown="event.stopPropagation()" onwheel="event.stopPropagation()"></div>
 
                 <div id="rdkit-svg-container" class="w-full h-full flex justify-center items-center select-none">
-                    <p class="text-base text-slate-500 animate-pulse" id="loading-text">Loading RDKit Chemistry Engine...</p>
+                    <p class="text-base text-slate-500 animate-pulse" id="loading-text">Laddar kemimotorn RDKit …</p>
                 </div>
 
                 <div class="hidden lg:block absolute bottom-2 right-4 text-sm text-slate-500 font-mono pointer-events-none bg-white/90 px-2.5 py-1 rounded shadow-sm">
@@ -326,80 +326,80 @@
             <div id="mobile-controls" class="lg:hidden w-full flex flex-col gap-1.5 pt-2 flex-[1_1_auto]">
                 <div id="m-pathways" class="grid grid-cols-3 grid-rows-2 gap-1.5 flex-[2_1_auto]"></div>
                 <div class="flex gap-1.5 flex-1">
-                    <button id="m-clear-btn" onclick="confirmClearAll()" class="flex-1 min-h-[52px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer border-2 border-slate-600 bg-slate-800 text-slate-100 active:bg-rose-950">🗑️ Clear All</button>
-                    <button id="m-check-btn" onclick="handleActionButton()" class="flex-[1.4] min-h-[52px] rounded-xl text-[15px] font-bold px-2 transition cursor-pointer bg-emerald-600 active:bg-emerald-700 text-white">✅ Check Answer</button>
+                    <button id="m-clear-btn" onclick="confirmClearAll()" class="flex-1 min-h-[52px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer border-2 border-slate-600 bg-slate-800 text-slate-100 active:bg-rose-950">🗑️ Rensa allt</button>
+                    <button id="m-check-btn" onclick="handleActionButton()" class="flex-[1.4] min-h-[52px] rounded-xl text-[15px] font-bold px-2 transition cursor-pointer bg-emerald-600 active:bg-emerald-700 text-white">✅ Kontrollera svar</button>
                 </div>
             </div>
 
             <div class="w-full mt-2 hidden lg:grid lg:grid-cols-[auto_1fr_auto] items-center gap-4 pt-4 border-t border-slate-700">
                 <button id="prev-btn" onclick="prevMolecule()" class="hidden lg:block bg-slate-700 hover:bg-slate-600 text-slate-100 px-5 py-3 rounded-xl text-base font-bold transition shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-                    ⬅️ Previous
+                    ⬅️ Föregående
                 </button>
                 <div class="flex flex-col items-center gap-2 min-w-0">
-                    <span id="progress-indicator" class="text-base font-semibold text-slate-300">Compound 1 of 0</span>
+                    <span id="progress-indicator" class="text-base font-semibold text-slate-300">Förening 1 av 0</span>
                     <div class="w-full max-w-xs h-2 bg-slate-700 rounded-full overflow-hidden">
                         <div id="progress-bar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div>
                     </div>
                 </div>
                 <button id="skip-btn" onclick="nextMolecule()" class="hidden lg:block bg-slate-700 hover:bg-slate-600 text-slate-100 px-5 py-3 rounded-xl text-base font-bold transition shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-                    Skip ➔
+                    Hoppa över ➔
                 </button>
             </div>
         </div>
     </main>
 
     <!-- Modal: Edit Compound -->
-    <div id="m-instructions-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50" onclick="if (event.target === this) closeMobileInstructions()" role="dialog" aria-label="Instructions">
+    <div id="m-instructions-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50" onclick="if (event.target === this) closeMobileInstructions()" role="dialog" aria-label="Instruktioner">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl w-full max-w-md max-h-[90%] overflow-y-auto p-5">
             <div class="flex items-center justify-between gap-3 mb-4">
-                <h2 class="text-2xl font-bold text-emerald-400">Instructions</h2>
-                <button onclick="closeMobileInstructions()" class="text-slate-300 text-3xl leading-none px-2 py-1" aria-label="Close">✕</button>
+                <h2 class="text-2xl font-bold text-emerald-400">Instruktioner</h2>
+                <button onclick="closeMobileInstructions()" class="text-slate-300 text-3xl leading-none px-2 py-1" aria-label="Stäng">✕</button>
             </div>
             <ol class="space-y-4 text-[17px] leading-snug text-slate-100">
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Pick one of the five biosynthetic pathways.</span></li>
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Touch the atoms in the structure that derive from that biosynthetic pathway. Some molecules derive from multiple pathways. Use the Eraser if you make a mistake. Pinch to zoom on the structure if you are having trouble selecting the atoms.</span></li>
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>Once you are done, press <strong class="text-white">"Check Answer"</strong>. Any incorrect or missing assignments will be highlighted.</span></li>
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>If the molecule is too difficult, you can click <strong class="text-white">"Show Answer"</strong>.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Välj en av de fem biosyntesvägarna.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Tryck på de atomer i strukturen som kommer från den biosyntesvägen. Vissa molekyler kommer från flera vägar. Använd Sudd om du gör fel. Nyp för att zooma in på strukturen om det är svårt att träffa atomerna.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>När du är klar trycker du på <strong class="text-white">”Kontrollera svar”</strong>. Felaktiga eller saknade atomer markeras.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>Om molekylen är för svår kan du trycka på <strong class="text-white">”Visa svar”</strong>.</span></li>
             </ol>
-            <button onclick="closeMobileInstructions()" class="mt-5 w-full py-3 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white text-lg font-bold">Got it</button>
+            <button onclick="closeMobileInstructions()" class="mt-5 w-full py-3 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white text-lg font-bold">Okej</button>
         </div>
     </div>
 
     <div id="gauntlet-start-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50" onclick="if (event.target === this) closeGauntletStart()">
         <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92%] overflow-y-auto p-5 md:p-8">
-            <div class="mb-4 rounded-xl border border-amber-500/50 bg-amber-500/10 px-4 py-2.5 text-amber-200 text-sm md:text-base font-semibold">Optional challenge mode. You don't need it to practise.</div>
-            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-1">⚔️ The Gauntlet</h2>
-            <p class="text-base md:text-lg text-slate-300 mb-4"><span id="g-start-count">10</span> random structures, one at a time. Beat the clock.</p>
+            <div class="mb-4 rounded-xl border border-amber-500/50 bg-amber-500/10 px-4 py-2.5 text-amber-200 text-sm md:text-base font-semibold">Valfritt utmaningsläge. Du behöver det inte för att öva.</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-1">⚔️ Utmaningsläge</h2>
+            <p class="text-base md:text-lg text-slate-300 mb-4"><span id="g-start-count">10</span> slumpade strukturer, en i taget. Slå klockan.</p>
             <ul class="space-y-3 text-base md:text-lg leading-snug text-slate-100">
-                <li>⏱️ <strong class="text-white">3 minutes</strong> per structure. The faster you finish, the more points.</li>
-                <li>✅ Get the <strong class="text-white">whole structure right</strong> to score.</li>
-                <li>⚠️ A wrong "Check my answer" costs <strong class="text-white">15 seconds</strong>.</li>
-                <li>🌿 Bonus points for terpene units done right.</li>
-                <li>🙈 No answers are shown. You can skip a structure for 0 points.</li>
+                <li>⏱️ <strong class="text-white">3 minuter</strong> per struktur. Ju snabbare du blir klar, desto fler poäng.</li>
+                <li>✅ Du får bara poäng om <strong class="text-white">hela strukturen är rätt</strong>.</li>
+                <li>⚠️ Ett felaktigt ”Kontrollera mitt svar” kostar <strong class="text-white">15 sekunder</strong>.</li>
+                <li>🌿 Bonuspoäng för rätt indelade isoprenenheter.</li>
+                <li>🙈 Inga svar visas. Du kan hoppa över en struktur för 0 poäng.</li>
             </ul>
             <div class="mt-6 flex gap-3">
-                <button onclick="closeGauntletStart()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Back to practice</button>
-                <button onclick="startGauntlet()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Start the Gauntlet</button>
+                <button onclick="closeGauntletStart()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Tillbaka till övningen</button>
+                <button onclick="startGauntlet()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Starta utmaningen</button>
             </div>
         </div>
     </div>
 
     <div id="gauntlet-final-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
         <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[94%] overflow-y-auto p-5 md:p-8">
-            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 text-center">🏁 Gauntlet complete</h2>
+            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 text-center">🏁 Utmaningen är klar</h2>
             <div class="text-center mt-3">
                 <div id="g-final-total" class="text-6xl md:text-7xl font-extrabold text-white tabular-nums">0</div>
-                <div class="text-base md:text-lg text-slate-300 mt-1">total points · <span id="g-final-solved">0</span> of <span id="g-final-count">10</span> structures solved</div>
+                <div class="text-base md:text-lg text-slate-300 mt-1">poäng totalt · <span id="g-final-solved">0</span> av <span id="g-final-count">10</span> strukturer lösta</div>
             </div>
             <div class="mt-6 overflow-x-auto">
                 <table class="w-full text-sm md:text-base text-left">
-                    <thead><tr class="text-slate-400 border-b border-slate-600"><th class="py-2 pr-2">#</th><th class="py-2 pr-2">Structure</th><th class="py-2 pr-2">Result</th><th class="py-2 pr-2 text-right hidden md:table-cell">Time</th><th class="py-2 pr-2 text-right hidden md:table-cell">Atoms</th><th class="py-2 pr-2 text-right hidden md:table-cell">Bonus</th><th class="py-2 text-right">Points</th></tr></thead>
+                    <thead><tr class="text-slate-400 border-b border-slate-600"><th class="py-2 pr-2">#</th><th class="py-2 pr-2">Struktur</th><th class="py-2 pr-2">Resultat</th><th class="py-2 pr-2 text-right hidden md:table-cell">Tid</th><th class="py-2 pr-2 text-right hidden md:table-cell">Atomer</th><th class="py-2 pr-2 text-right hidden md:table-cell">Bonus</th><th class="py-2 text-right">Poäng</th></tr></thead>
                     <tbody id="g-final-rows"></tbody>
                 </table>
             </div>
             <div class="mt-7 flex gap-3">
-                <button onclick="closeGauntletFinal()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Back to practice</button>
-                <button onclick="closeGauntletFinal(); openGauntletStart()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Play again</button>
+                <button onclick="closeGauntletFinal()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Tillbaka till övningen</button>
+                <button onclick="closeGauntletFinal(); openGauntletStart()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Spela igen</button>
             </div>
         </div>
     </div>
@@ -407,17 +407,17 @@
     <div id="instructions-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50" onclick="if (event.target === this) closeInstructions()">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-8">
             <div class="flex items-start justify-between gap-4 mb-6">
-                <h2 class="text-3xl font-bold text-emerald-400">Instructions</h2>
-                <button onclick="closeInstructions()" class="text-slate-300 hover:text-white text-3xl leading-none px-2 cursor-pointer" aria-label="Close">✕</button>
+                <h2 class="text-3xl font-bold text-emerald-400">Instruktioner</h2>
+                <button onclick="closeInstructions()" class="text-slate-300 hover:text-white text-3xl leading-none px-2 cursor-pointer" aria-label="Stäng">✕</button>
             </div>
             <ol class="space-y-5 text-xl leading-relaxed text-slate-100">
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Pick one of the five biosynthetic pathways.</span></li>
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Click the atoms in the structure that derive from that biosynthetic pathway. Some molecules derive from multiple pathways. Use the Eraser if you make a mistake.</span></li>
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>Once you are done, press <strong class="text-white">"check my answer"</strong>. Any incorrect or missing assignments will be highlighted.</span></li>
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>If the molecule is too difficult, you can click <strong class="text-white">"I'm stuck, show me the answer"</strong>.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Välj en av de fem biosyntesvägarna.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Klicka på de atomer i strukturen som kommer från den biosyntesvägen. Vissa molekyler kommer från flera vägar. Använd Sudd om du gör fel.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>När du är klar trycker du på <strong class="text-white">”Kontrollera mitt svar”</strong>. Felaktiga eller saknade atomer markeras.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>Om molekylen är för svår kan du klicka på <strong class="text-white">”Jag har fastnat, visa svaret”</strong>.</span></li>
             </ol>
-            <p class="mt-7 text-base text-slate-400">Shortcuts: press 1 to 5 to pick a pathway, E for the eraser, and + / − to zoom.</p>
-            <button onclick="closeInstructions()" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold cursor-pointer">Got it</button>
+            <p class="mt-7 text-base text-slate-400">Kortkommandon: tryck 1–5 för att välja väg, E för sudd och + / − för att zooma.</p>
+            <button onclick="closeInstructions()" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold cursor-pointer">Okej</button>
         </div>
     </div>
 
@@ -510,6 +510,21 @@
             { hex: "#8969e2", rgb: [0.54, 0.41, 0.89] }
         ] }
     };
+    // What students see for each pathway: [name, subtitle]. The English constants above stay as internal keys.
+    const PATH_LABELS = {
+        [ISO]:  ['Isoprenoid', ''],
+        [SHIK]: ['Shikimisyra', ''],
+        [ACET]: ['Acetat-&#8203;malonat', 'Polyketid'],
+        [ALK]:  ['Aminosyra', 'Alkaloid'],
+        [GLY]:  ['Foto&shy;syntes', 'Kolhydrat / Glykosid']
+    };
+    // plain-text version, e.g. "Acetat-malonat (Polyketid)"
+    function pathLabel(p) {
+        const l = PATH_LABELS[p]; if (!l) return p;
+        const name = l[0].replace(/&#8203;|&shy;/g, '');
+        return l[1] ? `${name} (${l[1]})` : name;
+    }
+    const atomWord = (n) => n === 1 ? 'atom' : 'atomer';
     const ISO_UNIT_COLORS = PATHWAY_STYLES[ISO].shades;
     const MAX_ISO_UNITS = 7;
     function textOnColor(hex) {
@@ -688,7 +703,7 @@
     function initApp() {
         setupColumnResizer();
         if (typeof window.initRDKitModule === 'undefined') {
-            document.getElementById('rdkit-svg-container').innerHTML = `<p class="text-xs text-rose-400">Error: RDKit script failed to load from CDN.</p>`;
+            document.getElementById('rdkit-svg-container').innerHTML = `<p class="text-xs text-rose-400">Fel: kemimotorn RDKit kunde inte laddas. Kontrollera internetanslutningen och ladda om sidan.</p>`;
             return;
         }
         window.initRDKitModule().then(function (rdkitInstance) {
@@ -700,7 +715,7 @@
             refreshDropdown();
             loadMolecule();
         }).catch(err => {
-            document.getElementById('rdkit-svg-container').innerHTML = `<p class="text-xs text-rose-400">Failed to initialize RDKit WebAssembly module.</p>`;
+            document.getElementById('rdkit-svg-container').innerHTML = `<p class="text-xs text-rose-400">Fel: kemimotorn RDKit kunde inte startas. Ladda om sidan.</p>`;
             console.error(err);
         });
     }
@@ -1082,7 +1097,7 @@
     function confirmClearAll() {
         if (answered) { clearAllHighlights(); return; }
         if (Object.keys(atomHighlights).length === 0) return;
-        if (confirm("Do you wish to clear all?")) clearAllHighlights();
+        if (confirm("Vill du rensa allt?")) clearAllHighlights();
     }
 
     function clearAllHighlights() {
@@ -1120,7 +1135,7 @@
 
         if (answered) return;
         if (!activePathwayBrush) {
-            showWarning("🎨 Pick a pathway first to load its colored brush, then click atoms to paint them.");
+            showWarning("🎨 Välj en väg först för att få dess färg, och klicka sedan på atomer för att färga dem.");
             return;
         }
         clearWarning();
@@ -1191,7 +1206,7 @@
     function addNewIsoUnit() {
         if (answered) return;
         if (isoGroups.length >= MAX_ISO_UNITS && isoGroups[isoGroups.length - 1].length > 0) {
-            showWarning(`That's the most units available (${MAX_ISO_UNITS}).`);
+            showWarning(`Du kan inte ha fler än ${MAX_ISO_UNITS} enheter.`);
             return;
         }
         if (isoGroups.length > 0 && isoGroups[isoGroups.length - 1].length === 0) {
@@ -1270,24 +1285,24 @@
         showM('m-reveal-btn', !answered && !authorMode);
         showM('m-next-structure-btn', mobileNextVisible());
         const mClear = document.getElementById('m-clear-btn');
-        if (mClear) { mClear.textContent = answered ? '↺ Reset Structure' : '🗑️ Clear All'; mClear.style.display = (inG && answered) ? 'none' : ''; }
+        if (mClear) { mClear.textContent = answered ? '↺ Börja om' : '🗑️ Rensa allt'; mClear.style.display = (inG && answered) ? 'none' : ''; }
         btn.disabled = false;
         const base = "w-full font-bold py-4 px-5 rounded-2xl text-xl transition shadow-md cursor-pointer";
 
         if (!answered) {
-            btn.textContent = "✅ Check my answer";
+            btn.textContent = "✅ Kontrollera mitt svar";
             btn.className = base + " bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white";
         } else if (!isLast) {
-            btn.textContent = "Next compound ➔";
+            btn.textContent = "Nästa förening ➔";
             btn.className = base + " bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white";
         } else {
-            btn.textContent = "🏁 You've finished every compound";
+            btn.textContent = "🏁 Du har gått igenom alla föreningar";
             btn.disabled = true;
             btn.className = base + " bg-slate-700 text-slate-200 disabled:opacity-80 disabled:cursor-not-allowed";
         }
         if (inG && answered) {   // Gauntlet: the big button moves on to the next structure
             btn.disabled = false;
-            btn.textContent = (gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 See final score' : 'Next structure ➔';
+            btn.textContent = (gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Se slutresultatet' : 'Nästa struktur ➔';
             btn.className = base + " bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white";
         }
     }
@@ -1304,12 +1319,12 @@
         let html = '';
         isoGroups.forEach((g, u) => {
             const sel = (activeIsoUnitIdx === u);
-            html += `<button onclick="selectIsoUnit(${u})" aria-pressed="${sel}" title="Unit ${u + 1}: ${g.length} of 5 atoms" class="iso-chip iso-chip-${size}${sel ? ' is-on' : ''}">
+            html += `<button onclick="selectIsoUnit(${u})" aria-pressed="${sel}" title="Enhet ${u + 1}: ${g.length} av 5 atomer" class="iso-chip iso-chip-${size}${sel ? ' is-on' : ''}">
                         <span class="iso-num" style="background:${col}; color:${textOnColor(col)}">${u + 1}</span>
                         <span class="${g.length === 5 ? 'text-emerald-300' : 'text-amber-300'}">${g.length}/5</span>
                      </button>`;
         });
-        html += `<button onclick="addNewIsoUnit()" title="Start a new isoprene unit" class="iso-chip iso-chip-${size} iso-add">➕ New</button>`;
+        html += `<button onclick="addNewIsoUnit()" title="Starta en ny isoprenenhet" class="iso-chip iso-chip-${size} iso-add">➕ Ny</button>`;
         return html;
     }
 
@@ -1317,7 +1332,7 @@
         const show = !answered && activePathwayBrush === ISO;
         const strip = document.getElementById('m-iso-units');
         strip.classList.toggle('hidden', !show);
-        if (show) strip.innerHTML = `<span class="shrink-0 text-xs font-bold text-slate-300" title="Pick a unit, then click its 5 carbons">Unit:</span>` + isoUnitChips(window.innerWidth >= 1024 ? 'md' : 'sm');
+        if (show) strip.innerHTML = `<span class="shrink-0 text-xs font-bold text-slate-300" title="Välj en enhet och klicka sedan på dess 5 kol">Enhet:</span>` + isoUnitChips(window.innerWidth >= 1024 ? 'md' : 'sm');
     }
 
     function renderPathwayOptions() {
@@ -1341,12 +1356,10 @@
 
             const inUse = isSelected || isActiveBrush;
             const keyNum = FIXED_PATHWAYS.indexOf(pathway) + 1;
-            const nameParts = pathway.split(' (');
-            const mainName = nameParts[0];
-            const subName = nameParts[1] ? nameParts[1].replace(/\)$/, '') : '';
+            const [mainName, subName] = PATH_LABELS[pathway];
             const btn = document.createElement('button');
             btn.className = "relative text-left p-3 xl:p-4 rounded-2xl transition flex items-center gap-2.5 xl:gap-3.5 cursor-pointer";
-            btn.title = `${pathway}. Click, or press ${keyNum}, to pick this pathway`;
+            btn.title = `${pathLabel(pathway)}. Klicka, eller tryck ${keyNum}, för att välja den här vägen`;
             btn.setAttribute('aria-pressed', isActiveBrush ? 'true' : 'false');
             if (inUse) {
                 btn.style.backgroundColor = "rgba(15, 23, 42, 0.9)";
@@ -1358,10 +1371,10 @@
             btn.innerHTML = `
                 <span class="w-9 h-9 xl:w-11 xl:h-11 rounded-full flex-shrink-0 flex items-center justify-center text-lg xl:text-xl font-bold shadow" style="background-color: ${style.hex}; color: ${textOnColor(style.hex)}">${keyNum}</span>
                 <span class="min-w-0 break-words">
-                    <span class="block text-base xl:text-lg font-bold leading-tight ${inUse ? 'text-white' : 'text-slate-100'}">${mainName.replace('Photosynthesis', 'Photo&shy;synthesis').replace('Acetate-Malonate', 'Acetate-&#8203;Malonate')}</span>
+                    <span class="block text-base xl:text-lg font-bold leading-tight ${inUse ? 'text-white' : 'text-slate-100'}">${mainName}</span>
                     ${subName ? `<span class="block text-sm xl:text-base leading-tight text-slate-400 mt-0.5">${subName}</span>` : ''}
                 </span>
-                ${atomCount > 0 ? `<span class="absolute -top-2 -right-2 min-w-[2rem] h-8 px-2.5 rounded-full flex items-center justify-center text-base font-bold shadow" style="background-color: ${style.hex}; color: ${textOnColor(style.hex)}" title="${atomCount} atom${atomCount === 1 ? '' : 's'} painted">${atomCount}</span>` : ''}`;
+                ${atomCount > 0 ? `<span class="absolute -top-2 -right-2 min-w-[2rem] h-8 px-2.5 rounded-full flex items-center justify-center text-base font-bold shadow" style="background-color: ${style.hex}; color: ${textOnColor(style.hex)}" title="${atomCount} ${atomWord(atomCount)} färgade">${atomCount}</span>` : ''}`;
             btn.onclick = () => handlePathwayClick(pathway);
             container.appendChild(btn);
 
@@ -1384,10 +1397,10 @@
         // The eraser is the last tile in the grid (desktop tile and phone button)
         const eraser = document.createElement('button');
         eraser.id = 'eraser-btn';
-        eraser.title = 'Click painted atoms to clear them (shortcut: E)';
+        eraser.title = 'Klicka på färgade atomer för att ta bort dem (kortkommando: E)';
         eraser.className = (activePathwayBrush === 'ERASER') ? ERASER_ON : ERASER_OFF;
         eraser.innerHTML = `<span class="w-9 h-9 xl:w-11 xl:h-11 rounded-full flex-shrink-0 flex items-center justify-center text-lg xl:text-xl bg-slate-700">🧹</span>
-            <span class="min-w-0"><span class="block text-base xl:text-lg font-bold leading-tight">Eraser</span><span class="block text-sm xl:text-base leading-tight text-slate-400 mt-0.5">Clear atoms</span></span>`;
+            <span class="min-w-0"><span class="block text-base xl:text-lg font-bold leading-tight">Sudd</span><span class="block text-sm xl:text-base leading-tight text-slate-400 mt-0.5">Ta bort atomer</span></span>`;
         eraser.onclick = equipEraser;
         container.appendChild(eraser);
 
@@ -1395,7 +1408,7 @@
             const me = document.createElement('button');
             me.id = 'm-eraser-btn';
             me.className = (activePathwayBrush === 'ERASER') ? M_ERASER_ON : M_ERASER_OFF;
-            me.textContent = '🧹 Eraser';
+            me.textContent = '🧹 Sudd';
             me.style.display = (answered || authorMode) ? 'none' : '';
             me.onclick = equipEraser;
             mGrid.appendChild(me);
@@ -1404,7 +1417,7 @@
             const mn = document.createElement('button');
             mn.id = 'm-next-structure-btn';
             mn.className = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[14px] font-bold transition border-[3px] border-indigo-300 bg-indigo-600 text-white";
-            mn.textContent = (gauntletActive() && gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Final Score' : 'Next Structure ➡️';
+            mn.textContent = (gauntletActive() && gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Slutresultat' : 'Nästa struktur ➡️';
             mn.style.display = mobileNextVisible() ? '' : 'none';
             mn.onclick = () => { if (gauntletActive()) gauntletNext(); else nextMolecule(); };
             mGrid.appendChild(mn);
@@ -1412,8 +1425,8 @@
     }
 
     const MOBILE_NAMES = {
-        [ISO]: 'Isoprenoid', [SHIK]: 'Shikimic', [ACET]: 'Acetate',
-        [ALK]: 'Amino Acid', [GLY]: 'Photo&shy;synthesis'
+        [ISO]: 'Isoprenoid', [SHIK]: 'Shikimisyra', [ACET]: 'Acetat',
+        [ALK]: 'Aminosyra', [GLY]: 'Foto&shy;syntes'
     };
     const M_ERASER_OFF = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[13px] font-bold transition border-[3px] border-slate-600 bg-slate-800 text-slate-100";
     const M_ERASER_ON  = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[13px] font-bold transition border-[3px] border-rose-500 bg-rose-950/70 text-rose-200";
@@ -1439,10 +1452,10 @@
         };
 
         if (!activePathwayBrush) {
-            setBadge("#475569", "Nothing yet. Pick a pathway first.", "#94a3b8");
+            setBadge("#475569", "Inget ännu. Välj en väg först.", "#94a3b8");
             badge.style.borderColor = "#334155";
         } else if (activePathwayBrush === 'ERASER') {
-            setBadge("#f43f5e", "Eraser: click painted atoms to clear them", "#fda4af");
+            setBadge("#f43f5e", "Sudd: klicka på färgade atomer för att ta bort dem", "#fda4af");
             plain(document.getElementById('eraser-btn'), ERASER_ON);
         } else if (activePathwayBrush === 'CUT_BOND') {
             setBadge("#fb7185", "✂️ Cut / divide bond (click a bond)", "#fecdd3");
@@ -1459,23 +1472,23 @@
         } else if (activePathwayBrush === ISO) {
             const uIdx = activeIsoUnitIdx !== null ? activeIsoUnitIdx : Math.max(0, isoGroups.length - 1);
             const shade = ISO_UNIT_COLORS[uIdx % ISO_UNIT_COLORS.length];
-            setBadge(shade.hex, `${ISO} (Unit ${uIdx + 1})`);
+            setBadge(shade.hex, `${pathLabel(ISO)} (enhet ${uIdx + 1})`);
         } else {
             const style = PATHWAY_STYLES[activePathwayBrush];
             const subIdx = activeSubunitIdx[activePathwayBrush] || 0;
             const totalSubs = maxSubunitCount[activePathwayBrush] || 1;
             const shade = style.shades[subIdx % style.shades.length];
-            setBadge(shade.hex, totalSubs > 1 ? `${activePathwayBrush} (Unit ${subIdx + 1})` : activePathwayBrush);
+            setBadge(shade.hex, totalSubs > 1 ? `${pathLabel(activePathwayBrush)} (enhet ${subIdx + 1})` : pathLabel(activePathwayBrush));
         }
         // phone: eraser highlight and the "brush in hand" chip on the drawing
         const mEr = document.getElementById('m-eraser-btn');
         if (mEr) mEr.className = (activePathwayBrush === 'ERASER') ? M_ERASER_ON : M_ERASER_OFF;
         const chipText = document.getElementById('m-brush-text'), chipDot = document.getElementById('m-brush-dot');
         if (chipText && chipDot) {
-            let label = 'Pick a pathway below, then tap atoms', col = '#94a3b8';
-            if (answered) { label = keyRevealed ? 'Answer shown' : 'Checked'; }
-            else if (activePathwayBrush === 'ERASER') { label = 'Eraser: tap painted atoms'; col = '#e11d48'; }
-            else if (PATHWAY_STYLES[activePathwayBrush]) { label = 'Painting: ' + MOBILE_NAMES[activePathwayBrush].replace(/&shy;/g, ''); col = PATHWAY_STYLES[activePathwayBrush].hex; }
+            let label = 'Välj en väg nedan och tryck på atomer', col = '#94a3b8';
+            if (answered) { label = keyRevealed ? 'Svaret visas' : 'Rättat'; }
+            else if (activePathwayBrush === 'ERASER') { label = 'Sudd: tryck på färgade atomer'; col = '#e11d48'; }
+            else if (PATHWAY_STYLES[activePathwayBrush]) { label = 'Färgar: ' + MOBILE_NAMES[activePathwayBrush].replace(/&shy;/g, ''); col = PATHWAY_STYLES[activePathwayBrush].hex; }
             chipText.textContent = label; chipDot.style.background = col;
         }
     }
@@ -1489,7 +1502,7 @@
         syncUnits();
 
         const paintedIndices = Object.keys(atomHighlights).map(Number);
-        document.getElementById('atom-counter').textContent = `${paintedIndices.length} atom${paintedIndices.length === 1 ? '' : 's'} painted`;
+        document.getElementById('atom-counter').textContent = `${paintedIndices.length} ${atomWord(paintedIndices.length)} färgade`;
 
         const cutCounterEl = document.getElementById('cut-counter');
         if (cutBonds.size > 0) {
@@ -1737,13 +1750,13 @@
         syncUnits();
 
         if (Object.keys(atomHighlights).length === 0) {
-            showWarning("⚠️ Paint at least one pathway on the structure before checking your answer.");
+            showWarning("⚠️ Färga minst en väg på strukturen innan du kontrollerar svaret.");
             return;
         }
 
         const m = masterDatabase[currentIndex];
         if (!m.atomMap) {
-            showWarning("⚠️ No answer key saved for this compound yet — use author mode to paint one.");
+            showWarning("⚠️ Det finns ingen svarsnyckel för den här föreningen än.");
             return;
         }
 
@@ -1756,20 +1769,20 @@
         if (result.pass && pathwaysOk) {
             answered = true;
             if (!gauntletActive()) saveProgressState();
-            const fb = setFeedback('ok', `✅ Correct — ${m.pathways.join(" + ")}, ${Object.keys(atomHighlights).length} atoms mapped` +
-                (result.toleranceUsed ? ` (${result.toleranceUsed} atom${result.toleranceUsed === 1 ? '' : 's'} accepted under tolerance rules)` : ''));
+            const fb = setFeedback('ok', `✅ Rätt! ${m.pathways.map(pathLabel).join(" + ")}, ${Object.keys(atomHighlights).length} atomer` +
+                (result.toleranceUsed ? ` (${result.toleranceUsed} ${atomWord(result.toleranceUsed)} godtogs enligt toleransreglerna)` : ''));
 
             activePathwayBrush = null;
             if (gauntletActive()) { gauntletEnd('solved'); fb.classList.add('hidden'); }
         } else {
             const bits = [];
-            if (result.wrong.length) bits.push(`${result.wrong.length} atom${result.wrong.length === 1 ? '' : 's'} with wrong pathway (red ring with a ✕)`);
-            if (result.missed.length) bits.push(`${result.missed.length} unpainted atom${result.missed.length === 1 ? '' : 's'} (dashed black ring)`);
-            if (!bits.length && !pathwaysOk) bits.push(`the set of pathways does not match`);
-            const fb = setFeedback('bad', `❌ ${bits.join(", ")}. Those atoms are marked on the structure. Fix them, then press Check my answer again.`);
+            if (result.wrong.length) bits.push(`${result.wrong.length} ${atomWord(result.wrong.length)} med fel väg (röd ring med ✕)`);
+            if (result.missed.length) bits.push(`${result.missed.length} ${result.missed.length === 1 ? 'ofärgad atom' : 'ofärgade atomer'} (streckad svart ring)`);
+            if (!bits.length && !pathwaysOk) bits.push(`valet av vägar stämmer inte`);
+            const fb = setFeedback('bad', `❌ ${bits.join(", ")}. Atomerna är markerade på strukturen. Rätta dem och tryck på Kontrollera mitt svar igen.`);
             if (gauntletActive()) {
                 if (gauntletWrong()) fb.classList.add('hidden');          // that penalty ran the clock out
-                else fb.textContent += ` ⏱️ −${G_PENALTY_S} seconds.`;
+                else fb.textContent += ` ⏱️ −${G_PENALTY_S} sekunder.`;
             }
         }
 
@@ -1942,7 +1955,7 @@
        A compound with no difficulty set counts as Medium. The dropdown is grouped under these headings, the
        compounds are numbered in that order, and Back / Forward follow it. The Gauntlet uses Medium and Hard only. */
     const DIFFICULTIES = ['easy', 'medium', 'hard'];
-    const DIFF_LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+    const DIFF_LABELS = { easy: 'Lätt', medium: 'Medel', hard: 'Svår' };
     const DIFF_KEY = 'pharmaco_difficulty_v1';
     let diffOverrides = {};              // name -> level, kept in this browser until "Update code" writes it into the file
 
@@ -1961,7 +1974,7 @@
     function compoundLabel(idx) {
         const m = masterDatabase[idx];
         const n = displayNumber(idx);
-        return authorMode ? `Compound ${n} (${m.name})${m.difficulty ? '' : ' · not set'}` : `Compound ${n}`;
+        return authorMode ? `Förening ${n} (${m.name})${m.difficulty ? '' : ' · not set'}` : `Förening ${n}`;
     }
 
     function refreshDropdown() {
@@ -1990,13 +2003,13 @@
     function updatePositionLabels() {
         const n = masterDatabase.length, pos = displayOrder().indexOf(currentIndex);
         const first = pos <= 0, last = pos >= n - 1;
-        document.getElementById('progress-indicator').textContent = `Compound ${pos + 1} of ${n}`;
+        document.getElementById('progress-indicator').textContent = `Förening ${pos + 1} av ${n}`;
         document.getElementById('progress-bar').style.width = `${((pos + 1) / n) * 100}%`;
         document.getElementById('prev-btn').disabled = first;
         document.getElementById('skip-btn').disabled = last;
         document.getElementById('m-prev-btn').disabled = first;
         document.getElementById('m-next-btn').disabled = last;
-        document.getElementById('m-compound-title').textContent = `Compound ${pos + 1} of ${n}`;
+        document.getElementById('m-compound-title').textContent = `Förening ${pos + 1} av ${n}`;
         document.getElementById('m-progress-bar').style.width = `${((pos + 1) / n) * 100}%`;
     }
 
@@ -2670,7 +2683,7 @@
     function openGauntletStart() {
         if (authorMode) { alert("Leave author mode before starting the Gauntlet."); return; }
         if (!currentMol) return;                       // chemistry engine still loading
-        if (!gauntletPool().length) { alert("There are no Medium or Hard structures with an answer key yet."); return; }
+        if (!gauntletPool().length) { alert("Det finns inga medelsvåra eller svåra strukturer med svarsnyckel än."); return; }
         document.getElementById('g-start-count').textContent = Math.min(G_COUNT, gauntletPool().length);
         document.getElementById('gauntlet-start-modal').classList.remove('hidden');
     }
@@ -2705,7 +2718,7 @@
         gauntlet.penaltyS = 0; gauntlet.penalties = 0;
         gAll('run').forEach(e => e.classList.remove('hidden'));
         gAll('done').forEach(e => e.classList.add('hidden'));
-        document.getElementById('g-progress').textContent = `Structure ${gauntlet.pos + 1} of ${gauntlet.order.length}`;
+        document.getElementById('g-progress').textContent = `Struktur ${gauntlet.pos + 1} av ${gauntlet.order.length}`;
         document.getElementById('mg-progress').textContent = `${gauntlet.pos + 1}/${gauntlet.order.length}`;
         gAll('penalty').forEach(e => { e.textContent = ''; });
         applyGauntletUI(true);
@@ -2741,7 +2754,7 @@
 
     function gauntletSkip() {
         if (!gauntletActive() || gauntlet.phase !== 'playing') return;
-        if (!confirm("Skip this structure for 0 points?")) return;
+        if (!confirm("Hoppa över den här strukturen för 0 poäng?")) return;
         gauntletEnd('skipped');
     }
 
@@ -2766,15 +2779,15 @@
 
         let html;
         if (reason === 'solved') {
-            html = `<span class="text-emerald-400">✅ Correct!</span> ${bd.total} atoms × ${Math.round(mult * 100)}% (${Math.round(elapsed)}s)`;
+            html = `<span class="text-emerald-400">✅ Rätt!</span> ${bd.total} atomer × ${Math.round(mult * 100)} % (${Math.round(elapsed)} s)`;
             if (bd.iso > 0) html += terpeneOK
-                ? ` · <span class="text-lime-300">🌿 terpene bonus ×2 on ${bd.iso} atoms</span>`
-                : ` · <span class="text-slate-400">🌿 no terpene bonus (units must be touching groups of 5)</span>`;
-            html += ` = <span class="text-amber-300">+${points} points</span>`;
-        } else if (reason === 'timeout') html = `<span class="text-rose-400">⏱️ Time's up.</span> 0 points. The answer is shown on the structure.`;
-        else html = `<span class="text-slate-300">⏭️ Skipped.</span> 0 points. The answer is shown on the structure.`;
+                ? ` · <span class="text-lime-300">🌿 terpenbonus ×2 på ${bd.iso} atomer</span>`
+                : ` · <span class="text-slate-400">🌿 ingen terpenbonus (enheterna måste vara sammanhängande grupper om 5)</span>`;
+            html += ` = <span class="text-amber-300">+${points} poäng</span>`;
+        } else if (reason === 'timeout') html = `<span class="text-rose-400">⏱️ Tiden är ute.</span> 0 poäng. Svaret visas på strukturen.`;
+        else html = `<span class="text-slate-300">⏭️ Överhoppad.</span> 0 poäng. Svaret visas på strukturen.`;
         gAll('done-text').forEach(e => { e.innerHTML = html; });
-        document.getElementById('g-next-btn').textContent = (gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 See final score' : 'Next structure ➔';
+        document.getElementById('g-next-btn').textContent = (gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Se slutresultatet' : 'Nästa struktur ➔';
         gAll('run').forEach(e => e.classList.add('hidden'));
         gAll('done').forEach(e => e.classList.remove('hidden'));
         updateActionButton();                // phones: puts "Next Structure" in the eraser's spot
@@ -2799,7 +2812,7 @@
 
     function quitGauntlet() {
         if (!gauntletActive()) return;
-        if (!confirm("Quit the Gauntlet? Your progress will be lost.")) return;
+        if (!confirm("Avsluta utmaningen? Dina resultat försvinner.")) return;
         stopGauntlet();
     }
 
@@ -2813,11 +2826,11 @@
         document.getElementById('g-final-count').textContent = results.length;
         document.getElementById('g-final-rows').innerHTML = results.map((r, i) => {
             const solved = r.reason === 'solved';
-            const label = solved ? '<span class="text-emerald-400">✅ Solved</span>' : r.reason === 'timeout' ? '<span class="text-rose-400">⏱️ Time up</span>' : '<span class="text-slate-400">⏭️ Skipped</span>';
+            const label = solved ? '<span class="text-emerald-400">✅ Löst</span>' : r.reason === 'timeout' ? '<span class="text-rose-400">⏱️ Tiden ute</span>' : '<span class="text-slate-400">⏭️ Överhoppad</span>';
             const bonus = solved ? Math.round(r.mult * 100) + '%' + (r.terpeneOK ? ' 🌿×2' : '') : '–';
             return `<tr class="border-b border-slate-700/60">
                 <td class="py-2 pr-2 text-slate-400">${i + 1}</td>
-                <td class="py-2 pr-2 text-slate-100">Compound ${displayNumber(r.idx)}</td>
+                <td class="py-2 pr-2 text-slate-100">Förening ${displayNumber(r.idx)}</td>
                 <td class="py-2 pr-2">${label}</td>
                 <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${Math.round(r.elapsed)}s</td>
                 <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${solved ? r.atoms : '–'}</td>

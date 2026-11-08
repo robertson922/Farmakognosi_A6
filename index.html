@@ -64,9 +64,9 @@
         <div class="flex items-center gap-5">
             <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Pharmacognosy Biosynthesis Trainer</h1>
             <button onclick="openInstructions()" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-slate-500 transition cursor-pointer shadow">📖 INSTRUCTIONS</button>
-            <button id="g-open-btn" onclick="openGauntletStart()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-amber-400 transition cursor-pointer shadow">⚔️ THE GAUNTLET</button>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
+            <button id="g-open-btn" onclick="openGauntletStart()" title="An optional timed challenge. You do not need it to practise." class="px-4 py-2 rounded-xl border-2 border-dashed border-amber-500/70 text-amber-300 hover:bg-amber-500/10 text-sm font-semibold transition cursor-pointer">⚔️ Want a challenge? <strong class="text-amber-200 tracking-wide">THE GAUNTLET</strong></button>
             <button id="author-toggle" onclick="toggleAuthorMode()" class="text-[10px] text-slate-400 opacity-30 hover:opacity-100 transition cursor-pointer px-2 py-1">✏️ author</button>
         </div>
     </header>
@@ -114,6 +114,15 @@
                         <button onclick="openAddModal()" title="Add a new compound from a SMILES string" class="py-2.5 px-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer">➕ Add molecule</button>
                         <button onclick="openEditModal()" title="Change this compound's name or SMILES" class="py-2.5 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">✏️ Edit compound</button>
                         <button onclick="removeCurrentMolecule()" title="Remove the compound that is open right now" class="py-2.5 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-950/60 hover:border-rose-700 text-xs font-semibold text-slate-200 hover:text-rose-300 cursor-pointer">🗑️ Remove molecule</button>
+                    </div>
+
+                    <div>
+                        <p class="text-[11px] font-bold text-indigo-300 uppercase tracking-wider mb-1">Difficulty <span id="diff-note" class="normal-case font-normal tracking-normal text-slate-400"></span></p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="diff-easy-btn" onclick="setDifficulty('easy')" class="py-2 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">Easy</button>
+                            <button id="diff-medium-btn" onclick="setDifficulty('medium')" class="py-2 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">Medium</button>
+                            <button id="diff-hard-btn" onclick="setDifficulty('hard')" class="py-2 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer">Hard</button>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
@@ -164,7 +173,7 @@
             <div id="gauntlet-hud" class="hidden max-md:hidden w-full mb-3 rounded-xl border-2 border-amber-500/70 bg-slate-900 px-4 py-3">
                 <div id="g-run" class="flex items-center gap-6">
                     <div class="shrink-0">
-                        <div class="text-amber-400 font-bold text-lg tracking-wide">⚔️ THE GAUNTLET</div>
+                        <div class="text-amber-400 font-bold text-lg tracking-wide">⚔️ THE GAUNTLET <span class="ml-1 text-xs font-semibold text-amber-300/80 tracking-wider">CHALLENGE MODE</span></div>
                         <div id="g-progress" class="text-slate-300 text-base">Structure 1 of 10</div>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -193,12 +202,17 @@
             <div id="stage" class="contents">
 
             <div id="m-compound-header" class="md:hidden w-full shrink-0 pb-2">
-                <div class="flex items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                     <div class="flex items-center gap-1.5">
-                        <button onclick="openMobileInstructions()" class="min-h-[38px] px-2 rounded-lg bg-slate-700 active:bg-slate-600 border border-slate-500 text-slate-100 text-[11px] font-bold tracking-wide">INSTRUCTIONS</button>
-                        <button onclick="openGauntletStart()" aria-label="The Gauntlet" title="The Gauntlet" class="min-h-[38px] min-w-[38px] rounded-lg bg-amber-600 active:bg-amber-700 border border-amber-400 text-white text-lg leading-none">⚔️</button>
+                        <button onclick="openMobileInstructions()" class="min-h-[38px] px-2 rounded-lg bg-slate-700 active:bg-slate-600 border border-slate-500 text-slate-100 text-[10px] font-bold tracking-wide">INSTRUCTIONS</button>
+                        <button onclick="openGauntletStart()" aria-label="Optional challenge: The Gauntlet" title="Optional challenge" class="min-h-[38px] px-1.5 rounded-lg border-2 border-dashed border-amber-500/70 text-amber-300 active:bg-amber-500/10 text-[9px] font-bold tracking-wide whitespace-nowrap"><span class="text-base leading-none">⚔️</span><span class="hidden min-[410px]:inline"> CHALLENGE</span></button>
                     </div>
-                    <span id="m-compound-title" class="text-[20px] font-bold text-slate-100 text-right whitespace-nowrap">Compound 1 of 1</span>
+                    <!-- the compound title doubles as the compound picker: a see-through native <select> sits on top of it, so a tap opens the phone's own list (grouped Easy / Medium / Hard) -->
+                    <div class="relative ml-auto min-h-[38px] flex items-center cursor-pointer">
+                        <span id="m-compound-title" class="text-[clamp(15px,4.4vw,18px)] font-bold text-slate-100 whitespace-nowrap border-b-2 border-dashed border-slate-500">Compound 1 of 1</span>
+                        <span class="ml-1 text-slate-300 text-sm" aria-hidden="true">▾</span>
+                        <select id="m-molecule-select" aria-label="Choose a compound" onchange="selectMoleculeFromDropdown(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></select>
+                    </div>
                 </div>
                 <div class="mt-1.5 h-2 bg-slate-700 rounded-full overflow-hidden"><div id="m-progress-bar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div></div>
             </div>
@@ -327,12 +341,12 @@
                 <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>If the molecule is too difficult, you can click <strong class="text-white">"Show Answer"</strong>.</span></li>
             </ol>
             <button onclick="closeMobileInstructions()" class="mt-5 w-full py-3 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white text-lg font-bold">Got it</button>
-            <button onclick="closeMobileInstructions(); openGauntletStart()" class="mt-2.5 w-full py-3 rounded-xl bg-amber-600 active:bg-amber-700 text-white text-base font-bold">⚔️ Play The Gauntlet</button>
         </div>
     </div>
 
     <div id="gauntlet-start-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50" onclick="if (event.target === this) closeGauntletStart()">
         <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92%] overflow-y-auto p-5 md:p-8">
+            <div class="mb-4 rounded-xl border border-amber-500/50 bg-amber-500/10 px-4 py-2.5 text-amber-200 text-sm md:text-base font-semibold">OPTIONAL CHALLENGE MODE. You don't need this to practise. Close this and the normal practice mode carries on as usual.</div>
             <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-1">⚔️ The Gauntlet</h2>
             <p class="text-base md:text-lg text-slate-300 mb-4"><span id="g-start-count">10</span> random structures, one at a time. Beat the clock.</p>
             <ul class="space-y-2.5 text-base md:text-lg leading-snug text-slate-100">
@@ -343,10 +357,11 @@
                 <li>🌿 <strong class="text-white">Terpene bonus:</strong> terpene atoms count double if you also put them into units of exactly 5 touching atoms. Any valid split counts.</li>
                 <li>⚠️ A wrong "Check my answer" costs <strong class="text-white">15 seconds</strong>.</li>
                 <li>🙈 No answers are shown. You can skip a structure for 0 points.</li>
+                <li>🎚️ Structures come from the <strong class="text-white">Medium and Hard</strong> sets only.</li>
                 <li>⚖️ Every set has roughly the same number of atoms, so it's fair.</li>
             </ul>
             <div class="mt-6 flex gap-3">
-                <button onclick="closeGauntletStart()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Cancel</button>
+                <button onclick="closeGauntletStart()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Back to practice</button>
                 <button onclick="startGauntlet()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Start the Gauntlet</button>
             </div>
         </div>
@@ -366,7 +381,7 @@
                 </table>
             </div>
             <div class="mt-7 flex gap-3">
-                <button onclick="closeGauntletFinal()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Close</button>
+                <button onclick="closeGauntletFinal()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Back to practice</button>
                 <button onclick="closeGauntletFinal(); openGauntletStart()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Play again</button>
             </div>
         </div>
@@ -813,14 +828,8 @@
         if (authorMode) paintAnswer(m);
 
         document.getElementById('feedback').classList.add('hidden');
-        document.getElementById('progress-indicator').textContent = `Compound ${currentIndex + 1} of ${masterDatabase.length}`;
-        document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / masterDatabase.length) * 100}%`;
-        document.getElementById('prev-btn').disabled = currentIndex === 0;
-        document.getElementById('skip-btn').disabled = currentIndex === masterDatabase.length - 1;
-        document.getElementById('m-prev-btn').disabled = currentIndex === 0;
-        document.getElementById('m-next-btn').disabled = currentIndex === masterDatabase.length - 1;
-        document.getElementById('m-compound-title').textContent = `Compound ${currentIndex + 1} of ${masterDatabase.length}`;
-        document.getElementById('m-progress-bar').style.width = `${((currentIndex + 1) / masterDatabase.length) * 100}%`;
+        updatePositionLabels();
+        updateDifficultyButtons();
 
         updateActionButton();
         renderPathwayOptions();
@@ -997,7 +1006,7 @@
     // correct answer (not "Show Answer"), and there is a next compound to go to
     function mobileNextVisible() {
         if (gauntletActive()) return answered && gauntlet.phase === 'done';       // after ANY ending: solved, time up or skipped
-        return answered && !keyRevealed && !authorMode && currentIndex < masterDatabase.length - 1;
+        return answered && !keyRevealed && !authorMode && neighbourIndex(1) !== null;
     }
 
     // Phone: ask before wiping a painted structure (after the answer is shown it is just "Reset Structure")
@@ -1180,7 +1189,7 @@
         document.getElementById('showkey-btn').classList.toggle('hidden', showKeyHidden);
         document.getElementById('reveal-zone').classList.toggle('hidden', inG || (showKeyHidden && (answered || authorMode)));
         const btn = document.getElementById('action-btn');
-        const isLast = currentIndex === masterDatabase.length - 1;
+        const isLast = neighbourIndex(1) === null;
         // phone buttons (inline display so the brush-highlight code can't undo it)
         const showM = (id, visible) => { const el = document.getElementById(id); if (el) el.style.display = visible ? '' : 'none'; };
         showM('m-check-btn', !answered && !authorMode);
@@ -1965,9 +1974,11 @@
     function loadStoredAuthorKeys() {
         try { authorKeys = JSON.parse(localStorage.getItem('pharmaco_author_keys_v2') || '{}'); } catch (e) { authorKeys = {}; }
         loadCustomMolecules();
+        try { diffOverrides = JSON.parse(localStorage.getItem(DIFF_KEY) || '{}'); } catch (e) { diffOverrides = {}; }
         masterDatabase.forEach(m => {
             normalizeMoleculeEntry(m);
             if (authorKeys[m.name]) applyAuthorKey(m, authorKeys[m.name]);
+            if (DIFFICULTIES.includes(diffOverrides[m.name])) m.difficulty = diffOverrides[m.name];
         });
         const knownNames = new Set(masterDatabase.map(m => m.name));
         let prunedStale = false;
@@ -1978,9 +1989,30 @@
 
     // Students see "Compound 1", "Compound 2", ... (a real name can give the answer away).
     // In author mode the real name is shown alongside.
+    /* ---------- difficulty: Easy / Medium / Hard ----------
+       A compound with no difficulty set counts as Medium. The dropdown is grouped under these headings, the
+       compounds are numbered in that order, and Back / Forward follow it. The Gauntlet uses Medium and Hard only. */
+    const DIFFICULTIES = ['easy', 'medium', 'hard'];
+    const DIFF_LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+    const DIFF_KEY = 'pharmaco_difficulty_v1';
+    let diffOverrides = {};              // name -> level, kept in this browser until "Update code" writes it into the file
+
+    function difficultyOf(m) { return DIFFICULTIES.includes(m.difficulty) ? m.difficulty : 'medium'; }
+    function displayOrder() {
+        const out = [];
+        DIFFICULTIES.forEach(d => masterDatabase.forEach((m, i) => { if (difficultyOf(m) === d) out.push(i); }));
+        return out;
+    }
+    function displayNumber(idx) { return displayOrder().indexOf(idx) + 1; }
+    function neighbourIndex(delta) {
+        const o = displayOrder(), p = o.indexOf(currentIndex) + delta;
+        return (p >= 0 && p < o.length) ? o[p] : null;
+    }
+
     function compoundLabel(idx) {
         const m = masterDatabase[idx];
-        return authorMode ? `Compound ${idx + 1} (${m.name})` : `Compound ${idx + 1}`;
+        const n = displayNumber(idx);
+        return authorMode ? `Compound ${n} (${m.name})${m.difficulty ? '' : ' · not set'}` : `Compound ${n}`;
     }
 
     function refreshDropdown() {
@@ -1988,14 +2020,61 @@
             const select = document.getElementById(id);
             if (!select) return;
             select.innerHTML = "";
-            masterDatabase.forEach((m, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.textContent = `${(authorMode && authorKeys[m.name]) ? '✓ ' : ''}${compoundLabel(idx)}`;
-                select.appendChild(opt);
+            DIFFICULTIES.forEach(d => {
+                const members = masterDatabase.map((m, i) => i).filter(i => difficultyOf(masterDatabase[i]) === d);
+                if (!members.length) return;
+                const group = document.createElement('optgroup');
+                group.label = DIFF_LABELS[d];
+                members.forEach(idx => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = `${(authorMode && authorKeys[masterDatabase[idx].name]) ? '✓ ' : ''}${compoundLabel(idx)}`;
+                    group.appendChild(opt);
+                });
+                select.appendChild(group);
             });
             select.value = currentIndex;
         });
+    }
+
+    // "Compound 10 of 45", the progress bars and the Back / Forward buttons all follow the grouped order
+    function updatePositionLabels() {
+        const n = masterDatabase.length, pos = displayOrder().indexOf(currentIndex);
+        const first = pos <= 0, last = pos >= n - 1;
+        document.getElementById('progress-indicator').textContent = `Compound ${pos + 1} of ${n}`;
+        document.getElementById('progress-bar').style.width = `${((pos + 1) / n) * 100}%`;
+        document.getElementById('prev-btn').disabled = first;
+        document.getElementById('skip-btn').disabled = last;
+        document.getElementById('m-prev-btn').disabled = first;
+        document.getElementById('m-next-btn').disabled = last;
+        document.getElementById('m-compound-title').textContent = `Compound ${pos + 1} of ${n}`;
+        document.getElementById('m-progress-bar').style.width = `${((pos + 1) / n) * 100}%`;
+    }
+
+    // author mode: choose this compound's difficulty
+    function updateDifficultyButtons() {
+        const m = masterDatabase[currentIndex];
+        if (!m) return;
+        const base = "py-2 px-2 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer";
+        const on = {
+            easy:   "py-2 px-2 rounded-lg border-2 border-emerald-500 bg-emerald-950/60 text-xs font-bold text-emerald-200 cursor-pointer",
+            medium: "py-2 px-2 rounded-lg border-2 border-amber-500 bg-amber-950/50 text-xs font-bold text-amber-200 cursor-pointer",
+            hard:   "py-2 px-2 rounded-lg border-2 border-rose-500 bg-rose-950/60 text-xs font-bold text-rose-200 cursor-pointer"
+        };
+        DIFFICULTIES.forEach(d => { const b = document.getElementById(`diff-${d}-btn`); if (b) b.className = (m.difficulty === d) ? on[d] : base; });
+        const note = document.getElementById('diff-note');
+        if (note) note.textContent = m.difficulty ? '' : '(not set, counts as Medium)';
+    }
+    function setDifficulty(level) {
+        if (!authorMode || !DIFFICULTIES.includes(level)) return;
+        const m = masterDatabase[currentIndex];
+        m.difficulty = level;
+        diffOverrides[m.name] = level;
+        try { localStorage.setItem(DIFF_KEY, JSON.stringify(diffOverrides)); } catch (e) {}
+        refreshDropdown();
+        updatePositionLabels();
+        updateDifficultyButtons();
+        showAuthorFeedback(`${DIFF_LABELS[level]}. This compound is now Compound ${displayNumber(currentIndex)}. Click Update code to write the difficulty into the file.`);
     }
 
     let authorUnlocked = false;
@@ -2065,8 +2144,8 @@
             (key.optional ? `, ${key.optional.length} optional` : '') +
             (key.altGroups ? `, ${key.altGroups.length} either/or group${key.altGroups.length === 1 ? '' : 's'}` : '');
 
-        if (goNext && currentIndex < masterDatabase.length - 1) {
-            currentIndex++;
+        if (goNext && neighbourIndex(1) !== null) {
+            currentIndex = neighbourIndex(1);
             saveProgressState();
             loadMolecule();
             fb.classList.remove('hidden');
@@ -2461,6 +2540,7 @@
         const hasKey = m.atomMap && Object.keys(m.atomMap).length > 0;
         const e = hasKey ? formatKeyOutput(m) : { name: m.name, smiles: m.smiles };
         if (!hasKey && (m.removeAtoms || []).length) e.removeAtoms = m.removeAtoms.slice();
+        if (m.difficulty) e.difficulty = m.difficulty;
         if (m.mw) e.mw = m.mw;
         if (m.info) e.info = m.info;
         return e;
@@ -2521,6 +2601,7 @@
         // everything is in the code now, so the "added in this browser" list is no longer needed
         masterDatabase.forEach(m => { delete m._custom; });
         try { localStorage.removeItem(CUSTOM_KEY); } catch (e) {}
+        diffOverrides = {}; try { localStorage.removeItem(DIFF_KEY); } catch (e) {}
         showAuthorFeedback(`✅ Updated ${masterDatabase.length} compound(s) in ${where}. Reload the page to see it load from the file.`);
     }
 
@@ -2586,16 +2667,18 @@
 
     function prevMolecule() {
         if (gauntletActive()) return;
-        if (currentIndex > 0) {
-            currentIndex--;
+        const t = neighbourIndex(-1);
+        if (t !== null) {
+            currentIndex = t;
             saveProgressState();
             loadMolecule();
         }
     }
     function nextMolecule() {
         if (gauntletActive()) return;
-        if (currentIndex < masterDatabase.length - 1) {
-            currentIndex++;
+        const t = neighbourIndex(1);
+        if (t !== null) {
+            currentIndex = t;
             saveProgressState();
             loadMolecule();
         }
@@ -2655,7 +2738,7 @@
 
     function gauntletPool() {
         const idx = [];
-        masterDatabase.forEach((m, i) => { if (m.atomMap && Object.keys(m.atomMap).length && gauntletBreakdown(m).total > 0) idx.push(i); });
+        masterDatabase.forEach((m, i) => { if (difficultyOf(m) !== 'easy' && m.atomMap && Object.keys(m.atomMap).length && gauntletBreakdown(m).total > 0) idx.push(i); });
         return idx;
     }
 
@@ -2686,6 +2769,7 @@
     function openGauntletStart() {
         if (authorMode) { alert("Leave author mode before starting the Gauntlet."); return; }
         if (!currentMol) return;                       // chemistry engine still loading
+        if (!gauntletPool().length) { alert("There are no Medium or Hard structures with an answer key yet."); return; }
         document.getElementById('g-start-count').textContent = Math.min(G_COUNT, gauntletPool().length);
         document.getElementById('gauntlet-start-modal').classList.remove('hidden');
     }
@@ -2837,7 +2921,7 @@
             const bonus = solved ? Math.round(r.mult * 100) + '%' + (r.terpeneOK ? ' 🌿×2' : '') : '–';
             return `<tr class="border-b border-slate-700/60">
                 <td class="py-2 pr-2 text-slate-400">${i + 1}</td>
-                <td class="py-2 pr-2 text-slate-100">Compound ${r.idx + 1}</td>
+                <td class="py-2 pr-2 text-slate-100">Compound ${displayNumber(r.idx)}</td>
                 <td class="py-2 pr-2">${label}</td>
                 <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${Math.round(r.elapsed)}s</td>
                 <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${solved ? r.atoms : '–'}</td>

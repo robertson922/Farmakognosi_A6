@@ -346,19 +346,15 @@
 
     <div id="gauntlet-start-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50" onclick="if (event.target === this) closeGauntletStart()">
         <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92%] overflow-y-auto p-5 md:p-8">
-            <div class="mb-4 rounded-xl border border-amber-500/50 bg-amber-500/10 px-4 py-2.5 text-amber-200 text-sm md:text-base font-semibold">OPTIONAL CHALLENGE MODE. You don't need this to practise. Close this and the normal practice mode carries on as usual.</div>
+            <div class="mb-4 rounded-xl border border-amber-500/50 bg-amber-500/10 px-4 py-2.5 text-amber-200 text-sm md:text-base font-semibold">Optional challenge mode. You don't need it to practise.</div>
             <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-1">⚔️ The Gauntlet</h2>
             <p class="text-base md:text-lg text-slate-300 mb-4"><span id="g-start-count">10</span> random structures, one at a time. Beat the clock.</p>
-            <ul class="space-y-2.5 text-base md:text-lg leading-snug text-slate-100">
-                <li>⏱️ <strong class="text-white">3 minutes</strong> for each structure.</li>
-                <li>🚀 <strong class="text-white">Time bonus:</strong> your points are worth 200% at the start and fall smoothly, every second, to 50% when the 3 minutes are up.</li>
-                <li>🎯 <strong class="text-white">1 point</strong> for every atom you assign correctly (optional atoms are worth nothing).</li>
-                <li>✅ You only score if the <strong class="text-white">whole structure is correct</strong>.</li>
-                <li>🌿 <strong class="text-white">Terpene bonus:</strong> terpene atoms count double if you also put them into units of exactly 5 touching atoms. Any valid split counts.</li>
+            <ul class="space-y-3 text-base md:text-lg leading-snug text-slate-100">
+                <li>⏱️ <strong class="text-white">3 minutes</strong> per structure. The faster you finish, the more points.</li>
+                <li>✅ Get the <strong class="text-white">whole structure right</strong> to score.</li>
                 <li>⚠️ A wrong "Check my answer" costs <strong class="text-white">15 seconds</strong>.</li>
+                <li>🌿 Bonus points for terpene units done right.</li>
                 <li>🙈 No answers are shown. You can skip a structure for 0 points.</li>
-                <li>🎚️ Structures come from the <strong class="text-white">Medium and Hard</strong> sets only.</li>
-                <li>⚖️ Every set has roughly the same number of atoms, so it's fair.</li>
             </ul>
             <div class="mt-6 flex gap-3">
                 <button onclick="closeGauntletStart()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Back to practice</button>

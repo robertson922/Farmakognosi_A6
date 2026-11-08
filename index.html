@@ -64,6 +64,7 @@
         <div class="flex items-center gap-5">
             <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Pharmacognosy Biosynthesis Trainer</h1>
             <button onclick="openInstructions()" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-slate-500 transition cursor-pointer shadow">📖 INSTRUCTIONS</button>
+            <button id="g-open-btn" onclick="openGauntletStart()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-amber-400 transition cursor-pointer shadow">⚔️ THE GAUNTLET</button>
         </div>
         <div class="flex items-center gap-3">
             <button id="author-toggle" onclick="toggleAuthorMode()" class="text-[10px] text-slate-400 opacity-30 hover:opacity-100 transition cursor-pointer px-2 py-1">✏️ author</button>
@@ -159,14 +160,69 @@
         <!-- Right Column -->
         <div class="order-first md:order-none bg-slate-800 p-2 md:p-5 rounded-2xl border border-slate-700 flex flex-col items-center relative shadow-sm min-h-0 xl:overflow-y-auto">
 
+            <!-- The Gauntlet: timer, bonus and per-structure result (desktop) -->
+            <div id="gauntlet-hud" class="hidden max-md:hidden w-full mb-3 rounded-xl border-2 border-amber-500/70 bg-slate-900 px-4 py-3">
+                <div id="g-run" class="flex items-center gap-6">
+                    <div class="shrink-0">
+                        <div class="text-amber-400 font-bold text-lg tracking-wide">⚔️ THE GAUNTLET</div>
+                        <div id="g-progress" class="text-slate-300 text-base">Structure 1 of 10</div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-baseline justify-center gap-3">
+                            <span id="g-timer" class="font-mono tabular-nums text-4xl font-bold text-emerald-400">3:00</span>
+                            <span id="g-penalty" class="text-rose-400 font-bold text-lg"></span>
+                        </div>
+                        <div class="mt-1 h-2 bg-slate-700 rounded-full overflow-hidden"><div id="g-bar" class="h-full bg-emerald-500" style="width: 100%"></div></div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <div class="text-slate-300 text-sm">Time bonus</div>
+                        <div id="g-mult" class="text-3xl font-bold text-amber-300 tabular-nums">200%</div>
+                        <div id="g-drop" class="text-slate-400 text-sm">falls to 50%</div>
+                    </div>
+                    <div class="flex flex-col gap-1.5 shrink-0">
+                        <button onclick="gauntletSkip()" class="px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold cursor-pointer">⏭️ Skip (0 pts)</button>
+                        <button onclick="quitGauntlet()" class="px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-800 hover:bg-rose-950 text-slate-300 text-sm font-semibold cursor-pointer">✕ Quit</button>
+                    </div>
+                </div>
+                <div id="g-done" class="hidden flex items-center justify-between gap-6">
+                    <div id="g-done-text" class="text-xl font-bold text-slate-100"></div>
+                    <button id="g-next-btn" onclick="gauntletNext()" class="shrink-0 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-lg font-bold cursor-pointer shadow">Next structure ➔</button>
+                </div>
+            </div>
+
             <div id="stage" class="contents">
 
             <div id="m-compound-header" class="md:hidden w-full shrink-0 pb-2">
                 <div class="flex items-center justify-between gap-3">
-                    <button onclick="openMobileInstructions()" class="min-h-[38px] px-2.5 rounded-lg bg-slate-700 active:bg-slate-600 border border-slate-500 text-slate-100 text-[11px] font-bold tracking-wide">INSTRUCTIONS</button>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="openMobileInstructions()" class="min-h-[38px] px-2 rounded-lg bg-slate-700 active:bg-slate-600 border border-slate-500 text-slate-100 text-[11px] font-bold tracking-wide">INSTRUCTIONS</button>
+                        <button onclick="openGauntletStart()" aria-label="The Gauntlet" title="The Gauntlet" class="min-h-[38px] min-w-[38px] rounded-lg bg-amber-600 active:bg-amber-700 border border-amber-400 text-white text-lg leading-none">⚔️</button>
+                    </div>
                     <span id="m-compound-title" class="text-[20px] font-bold text-slate-100 text-right whitespace-nowrap">Compound 1 of 1</span>
                 </div>
                 <div class="mt-1.5 h-2 bg-slate-700 rounded-full overflow-hidden"><div id="m-progress-bar" class="h-full bg-emerald-500 transition-all" style="width: 0%"></div></div>
+            </div>
+
+            <!-- Phone: Gauntlet timer, replaces the compound header while playing -->
+            <div id="m-gauntlet-hud" class="hidden md:hidden w-full shrink-0 pb-2">
+                <div id="mg-run">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="text-amber-400 font-bold text-sm leading-tight">⚔️ <span id="mg-progress">1/10</span></div>
+                        <div id="mg-timer" class="font-mono tabular-nums text-3xl font-bold text-emerald-400">3:00</div>
+                        <div class="text-right leading-tight">
+                            <div id="mg-mult" class="text-amber-300 font-bold text-xl tabular-nums">200%</div>
+                            <div id="mg-drop" class="text-slate-400 text-[11px]">falls to 50%</div>
+                        </div>
+                    </div>
+                    <div class="mt-1 flex items-center gap-2">
+                        <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden"><div id="mg-bar" class="h-full bg-emerald-500" style="width: 100%"></div></div>
+                        <span id="mg-penalty" class="text-rose-400 text-xs font-bold whitespace-nowrap"></span>
+                    </div>
+                </div>
+                <div id="mg-done" class="hidden">
+                    <div id="mg-done-text" class="text-base font-bold text-slate-100 leading-snug"></div>
+                    <div class="text-slate-400 text-xs mt-1">Tap <strong class="text-slate-200">Next Structure</strong> (bottom right) to continue.</div>
+                </div>
             </div>
 
             <!-- Phone: Back / Show Answer / Forward sit directly under the compound number -->
@@ -174,6 +230,12 @@
                     <button id="m-prev-btn" onclick="prevMolecule()" class="flex-1 min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-slate-700 active:bg-slate-600 text-slate-100 disabled:opacity-40">⬅️ Back</button>
                     <button id="m-reveal-btn" onclick="giveUp()" class="flex-[1.4] min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-amber-600 active:bg-amber-700 text-white">💡 Show Answer</button>
                     <button id="m-next-btn" onclick="skipMolecule()" class="flex-1 min-h-[50px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer bg-indigo-600 active:bg-indigo-700 text-white disabled:opacity-40">Forward ➡️</button>
+            </div>
+
+            <!-- Phone, Gauntlet only: Skip / Quit replace Back / Show Answer / Forward -->
+            <div id="mg-nav" class="hidden md:hidden w-full shrink-0 flex gap-1.5 pb-2">
+                <button onclick="gauntletSkip()" class="flex-[1.4] min-h-[46px] rounded-xl text-[14px] font-bold px-2 border-2 border-slate-600 bg-slate-800 text-slate-100 active:bg-slate-700">⏭️ Skip (0 pts)</button>
+                <button onclick="quitGauntlet()" class="flex-1 min-h-[46px] rounded-xl text-[14px] font-bold px-2 border-2 border-slate-600 bg-slate-800 text-slate-300 active:bg-rose-950">✕ Quit</button>
             </div>
 
             <!-- the drawing and the banners that float over it; about 2.5% shorter than before, the freed space goes to the buttons below -->
@@ -226,6 +288,7 @@
 
             <!-- Phone controls -->
             <div id="mobile-controls" class="md:hidden w-full flex flex-col gap-1.5 pt-2 flex-[1_1_auto]">
+                <div id="m-iso-units" class="hidden flex gap-1.5 overflow-x-auto shrink-0 items-center"></div>
                 <div id="m-pathways" class="grid grid-cols-3 grid-rows-2 gap-1.5 flex-[2_1_auto]"></div>
                 <div class="flex gap-1.5 flex-1">
                     <button id="m-clear-btn" onclick="mobileClearAll()" class="flex-1 min-h-[52px] rounded-xl text-[14px] font-bold px-2 transition cursor-pointer border-2 border-slate-600 bg-slate-800 text-slate-100 active:bg-rose-950">🗑️ Clear All</button>
@@ -264,6 +327,48 @@
                 <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>If the molecule is too difficult, you can click <strong class="text-white">"Show Answer"</strong>.</span></li>
             </ol>
             <button onclick="closeMobileInstructions()" class="mt-5 w-full py-3 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white text-lg font-bold">Got it</button>
+            <button onclick="closeMobileInstructions(); openGauntletStart()" class="mt-2.5 w-full py-3 rounded-xl bg-amber-600 active:bg-amber-700 text-white text-base font-bold">⚔️ Play The Gauntlet</button>
+        </div>
+    </div>
+
+    <div id="gauntlet-start-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50" onclick="if (event.target === this) closeGauntletStart()">
+        <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92%] overflow-y-auto p-5 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 mb-1">⚔️ The Gauntlet</h2>
+            <p class="text-base md:text-lg text-slate-300 mb-4"><span id="g-start-count">10</span> random structures, one at a time. Beat the clock.</p>
+            <ul class="space-y-2.5 text-base md:text-lg leading-snug text-slate-100">
+                <li>⏱️ <strong class="text-white">3 minutes</strong> for each structure.</li>
+                <li>🚀 <strong class="text-white">Time bonus:</strong> your points are worth 200% at the start and fall smoothly, every second, to 50% when the 3 minutes are up.</li>
+                <li>🎯 <strong class="text-white">1 point</strong> for every atom you assign correctly (optional atoms are worth nothing).</li>
+                <li>✅ You only score if the <strong class="text-white">whole structure is correct</strong>.</li>
+                <li>🌿 <strong class="text-white">Terpene bonus:</strong> terpene atoms count double if you also put them into units of exactly 5 touching atoms. Any valid split counts.</li>
+                <li>⚠️ A wrong "Check my answer" costs <strong class="text-white">15 seconds</strong>.</li>
+                <li>🙈 No answers are shown. You can skip a structure for 0 points.</li>
+                <li>⚖️ Every set has roughly the same number of atoms, so it's fair.</li>
+            </ul>
+            <div class="mt-6 flex gap-3">
+                <button onclick="closeGauntletStart()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Cancel</button>
+                <button onclick="startGauntlet()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Start the Gauntlet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gauntlet-final-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 md:p-4 z-50">
+        <div class="bg-slate-800 border border-amber-500/60 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[94%] overflow-y-auto p-5 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-amber-400 text-center">🏁 Gauntlet complete</h2>
+            <div class="text-center mt-3">
+                <div id="g-final-total" class="text-6xl md:text-7xl font-extrabold text-white tabular-nums">0</div>
+                <div class="text-base md:text-lg text-slate-300 mt-1">total points · <span id="g-final-solved">0</span> of <span id="g-final-count">10</span> structures solved</div>
+            </div>
+            <div class="mt-6 overflow-x-auto">
+                <table class="w-full text-sm md:text-base text-left">
+                    <thead><tr class="text-slate-400 border-b border-slate-600"><th class="py-2 pr-2">#</th><th class="py-2 pr-2">Structure</th><th class="py-2 pr-2">Result</th><th class="py-2 pr-2 text-right hidden md:table-cell">Time</th><th class="py-2 pr-2 text-right hidden md:table-cell">Atoms</th><th class="py-2 pr-2 text-right hidden md:table-cell">Bonus</th><th class="py-2 text-right">Points</th></tr></thead>
+                    <tbody id="g-final-rows"></tbody>
+                </table>
+            </div>
+            <div class="mt-7 flex gap-3">
+                <button onclick="closeGauntletFinal()" class="flex-1 py-3 rounded-xl border-2 border-slate-600 bg-slate-900 hover:bg-slate-700 text-slate-100 text-base md:text-lg font-semibold cursor-pointer">Close</button>
+                <button onclick="closeGauntletFinal(); openGauntletStart()" class="flex-[2] py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-lg md:text-xl font-bold cursor-pointer">Play again</button>
+            </div>
         </div>
     </div>
 
@@ -521,7 +626,7 @@
     function setupKeyboardShortcuts() {
         window.addEventListener('keydown', (e) => {
             if (e.metaKey || e.ctrlKey || e.altKey) return;
-            if (e.key === 'Escape') { closeInstructions(); closeMobileInstructions(); return; }
+            if (e.key === 'Escape') { closeInstructions(); closeMobileInstructions(); closeGauntletStart(); return; }
             const tag = ((e.target && e.target.tagName) || '').toLowerCase();
             if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
 
@@ -643,6 +748,7 @@
        MOLECULE LOADING
        ============================================================ */
     function selectMoleculeFromDropdown(el) {
+        if (gauntletActive()) return;
         currentIndex = parseInt((el || document.getElementById('molecule-select')).value);
         saveProgressState();
         loadMolecule();
@@ -890,6 +996,7 @@
 
     // correct answer (not "Show Answer"), and there is a next compound to go to
     function mobileNextVisible() {
+        if (gauntletActive()) return answered && gauntlet.phase === 'done';       // after ANY ending: solved, time up or skipped
         return answered && !keyRevealed && !authorMode && currentIndex < masterDatabase.length - 1;
     }
 
@@ -902,7 +1009,7 @@
 
     function clearAllHighlights() {
         // After "show me the answer" (or a correct check), start this same molecule over
-        if (answered) { loadMolecule(); return; }
+        if (answered) { if (gauntletActive()) return; loadMolecule(); return; }
         atomHighlights = {}; isoGroups = []; activeIsoUnitIdx = null;
         gradeResult = null;
         document.getElementById('feedback').classList.add('hidden');
@@ -1066,11 +1173,12 @@
     }
 
     function updateActionButton() {
-        document.getElementById('giveup-btn').classList.toggle('hidden', answered || authorMode);
+        const inG = gauntletActive();      // no "show me the answer" buttons during the Gauntlet
+        document.getElementById('giveup-btn').classList.toggle('hidden', answered || authorMode || inG);
         document.getElementById('action-btn').classList.toggle('hidden', authorMode);
-        const showKeyHidden = (!answered && !gradeResult) || authorMode || keyRevealed;
+        const showKeyHidden = (!answered && !gradeResult) || authorMode || keyRevealed || inG;
         document.getElementById('showkey-btn').classList.toggle('hidden', showKeyHidden);
-        document.getElementById('reveal-zone').classList.toggle('hidden', showKeyHidden && (answered || authorMode));
+        document.getElementById('reveal-zone').classList.toggle('hidden', inG || (showKeyHidden && (answered || authorMode)));
         const btn = document.getElementById('action-btn');
         const isLast = currentIndex === masterDatabase.length - 1;
         // phone buttons (inline display so the brush-highlight code can't undo it)
@@ -1080,7 +1188,7 @@
         showM('m-reveal-btn', !answered && !authorMode);
         showM('m-next-structure-btn', mobileNextVisible());
         const mClear = document.getElementById('m-clear-btn');
-        if (mClear) mClear.textContent = answered ? '↺ Reset Structure' : '🗑️ Clear All';
+        if (mClear) { mClear.textContent = answered ? '↺ Reset Structure' : '🗑️ Clear All'; mClear.style.display = (inG && answered) ? 'none' : ''; }
         btn.disabled = false;
         const base = "w-full font-bold py-4 px-5 rounded-2xl text-xl transition shadow-md cursor-pointer";
 
@@ -1095,11 +1203,36 @@
             btn.disabled = true;
             btn.className = base + " bg-slate-700 text-slate-200 disabled:opacity-80 disabled:cursor-not-allowed";
         }
+        if (inG && answered) {   // Gauntlet: the big button moves on to the next structure
+            btn.disabled = false;
+            btn.textContent = (gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 See final score' : 'Next structure ➔';
+            btn.className = base + " bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white";
+        }
     }
 
-    function handleActionButton() { answered ? nextMolecule() : lockInAnswer(); }
+    function handleActionButton() {
+        if (gauntletActive() && answered) { gauntletNext(); return; }
+        answered ? nextMolecule() : lockInAnswer();
+    }
+
+    // phones, Gauntlet only: choose / add terpene units so the "units of 5" bonus can be earned
+    function renderMobileIsoStrip() {
+        const strip = document.getElementById('m-iso-units');
+        if (!strip) return;
+        if (!gauntletActive() || answered || activePathwayBrush !== ISO) { strip.classList.add('hidden'); return; }
+        let html = '';
+        if (isoGroups.length === 0) html += '<span class="text-xs text-slate-300 shrink-0">Tap atoms: touching atoms in groups of 5 make a unit.</span>';
+        isoGroups.forEach((g, u) => {
+            const sel = (activeIsoUnitIdx === u);
+            html += `<button onclick="selectIsoUnit(${u})" class="shrink-0 min-h-[40px] px-3 rounded-lg text-sm font-bold border-2 ${sel ? 'border-white bg-slate-700 text-white' : 'border-slate-600 bg-slate-800 text-slate-200'}">Unit ${u + 1} <span class="${g.length === 5 ? 'text-emerald-300' : 'text-amber-300'}">${g.length}/5</span></button>`;
+        });
+        html += '<button onclick="addNewIsoUnit()" class="shrink-0 min-h-[40px] px-3 rounded-lg text-sm font-bold border-2 border-slate-600 bg-slate-800 text-emerald-300">➕ New unit</button>';
+        strip.innerHTML = html;
+        strip.classList.remove('hidden');
+    }
 
     function renderIsoUnitPanel() {
+        renderMobileIsoStrip();
         const panel = document.getElementById('iso-unit-panel');
         if (answered || activePathwayBrush !== ISO) { panel.classList.add('hidden'); return; }
         const col = (u) => ISO_UNIT_COLORS[u % ISO_UNIT_COLORS.length].hex;
@@ -1262,9 +1395,9 @@
             const mn = document.createElement('button');
             mn.id = 'm-next-structure-btn';
             mn.className = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[14px] font-bold transition border-[3px] border-indigo-300 bg-indigo-600 text-white";
-            mn.textContent = 'Next Structure ➡️';
+            mn.textContent = (gauntletActive() && gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 Final Score' : 'Next Structure ➡️';
             mn.style.display = mobileNextVisible() ? '' : 'none';
-            mn.onclick = nextMolecule;
+            mn.onclick = () => { if (gauntletActive()) gauntletNext(); else nextMolecule(); };
             mGrid.appendChild(mn);
         }
     }
@@ -1648,12 +1781,13 @@
 
         if (result.pass && pathwaysOk) {
             answered = true;
-            saveProgressState();
+            if (!gauntletActive()) saveProgressState();
             fb.className = "w-full text-center py-2.5 px-4 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-700 mb-4 shadow";
             fb.textContent = `✅ Correct — ${m.pathways.join(" + ")}, ${Object.keys(atomHighlights).length} atoms mapped` +
                 (result.toleranceUsed ? ` (${result.toleranceUsed} atom${result.toleranceUsed === 1 ? '' : 's'} accepted under tolerance rules)` : '');
 
             activePathwayBrush = null;
+            if (gauntletActive()) { gauntletEnd('solved'); fb.classList.add('hidden'); }
         } else {
             fb.className = "w-full text-center py-2.5 px-4 rounded-lg text-xs font-semibold bg-rose-950 text-rose-300 border border-rose-800 mb-4 shadow";
             const bits = [];
@@ -1661,6 +1795,10 @@
             if (result.missed.length) bits.push(`${result.missed.length} unpainted atom${result.missed.length === 1 ? '' : 's'} (dashed black ring)`);
             if (!bits.length && !pathwaysOk) bits.push(`the set of pathways does not match`);
             fb.textContent = `❌ ${bits.join(", ")}. Those atoms are marked on the structure. Fix them, then press Check my answer again.`;
+            if (gauntletActive()) {
+                if (gauntletWrong()) fb.classList.add('hidden');          // that penalty ran the clock out
+                else fb.textContent += ` ⏱️ −${G_PENALTY_S} seconds.`;
+            }
         }
 
         updateActionButton();
@@ -1670,6 +1808,7 @@
     }
 
     function revealKey() {
+        if (gauntletActive()) return;
         const m = masterDatabase[currentIndex];
         answered = true;
         keyRevealed = true;
@@ -1684,6 +1823,7 @@
     }
 
     function giveUp() {
+        if (gauntletActive()) return;
         if (answered || !currentMol) return;
         const m = masterDatabase[currentIndex];
         paintAnswer(m);
@@ -1860,6 +2000,7 @@
 
     let authorUnlocked = false;
     function toggleAuthorMode() {
+        if (gauntletActive()) { alert("Finish or quit the Gauntlet first."); return; }
         if (!authorMode && !authorUnlocked) {
             const pw = prompt("Author password:");
             if (pw === null) return;
@@ -2444,6 +2585,7 @@
     }
 
     function prevMolecule() {
+        if (gauntletActive()) return;
         if (currentIndex > 0) {
             currentIndex--;
             saveProgressState();
@@ -2451,6 +2593,7 @@
         }
     }
     function nextMolecule() {
+        if (gauntletActive()) return;
         if (currentIndex < masterDatabase.length - 1) {
             currentIndex++;
             saveProgressState();
@@ -2458,6 +2601,251 @@
         }
     }
     function skipMolecule() { nextMolecule(); }
+
+    /* ============================================================
+       THE GAUNTLET (competition mode: desktop and phone)
+       ============================================================ */
+    const G_COUNT = 10, G_LIMIT_S = 180, G_PENALTY_S = 15, G_SET_TOLERANCE = 0.20;
+    let gauntlet = null;                 // null while not playing
+
+    function gauntletActive() { return gauntlet !== null && gauntlet.active; }
+
+    // the desktop bar ("g-...") and the phone bar ("mg-...") are updated together; CSS shows the right one
+    const gAll = (name) => ['g-', 'mg-'].map(p => document.getElementById(p + name)).filter(Boolean);
+    const G_TEXT = ['text-emerald-400', 'text-amber-400', 'text-rose-400'];
+    const G_BARC = ['bg-emerald-500', 'bg-amber-500', 'bg-rose-500'];
+
+    // smooth: 200% at 0 s falling in a straight line, every second, to 50% at 3:00
+    function gauntletMultiplier(elapsedS) {
+        const f = Math.min(1, Math.max(0, elapsedS / G_LIMIT_S));
+        return 2.0 - 1.5 * f;
+    }
+
+    // atoms that earn a point (key atoms that are not optional and not "may be left blank"), split terpene / other
+    function gauntletBreakdown(m) {
+        const key = buildKeyMap(m);
+        const optional = new Set(m.optional || []);
+        const blankOk = new Set();
+        (m.altGroups || []).forEach(g => { if (g.allowBlank !== false) (g.atoms || []).forEach(a => blankOk.add(a)); });
+        let iso = 0, other = 0;
+        Object.keys(key).map(Number).forEach(a => {
+            if (optional.has(a) || blankOk.has(a)) return;
+            if (key[a] === ISO) iso++; else other++;
+        });
+        return { iso, other, total: iso + other };
+    }
+
+    // terpene bonus test, using the student's OWN units (it does not have to match the answer key):
+    // every terpene atom is in a unit of exactly 5 atoms, and the 5 atoms of each unit touch (form one connected piece)
+    function gauntletTerpeneUnitsOK() {
+        syncUnits();
+        const iso = Object.keys(atomHighlights).map(Number).filter(a => atomHighlights[a] === ISO);
+        if (!iso.length) return false;
+        const adj = {};
+        molBonds.forEach(b => { (adj[b.a1] = adj[b.a1] || []).push(b.a2); (adj[b.a2] = adj[b.a2] || []).push(b.a1); });
+        const groups = {};
+        for (const a of iso) { const u = atomUnits[a]; if (u === undefined) return false; (groups[u] = groups[u] || []).push(a); }
+        return Object.values(groups).every(g => {
+            if (g.length !== 5) return false;
+            const inUnit = new Set(g), seen = new Set([g[0]]), stack = [g[0]];
+            while (stack.length) { const u = stack.pop(); (adj[u] || []).forEach(v => { if (inUnit.has(v) && !seen.has(v)) { seen.add(v); stack.push(v); } }); }
+            return seen.size === 5;
+        });
+    }
+
+    function gauntletPool() {
+        const idx = [];
+        masterDatabase.forEach((m, i) => { if (m.atomMap && Object.keys(m.atomMap).length && gauntletBreakdown(m).total > 0) idx.push(i); });
+        return idx;
+    }
+
+    // random set of 10 whose total number of atoms is within +/-20% of "10 x the average compound", so every
+    // student faces about the same amount of work
+    function gauntletPickSet() {
+        const pool = gauntletPool();
+        const size = Math.min(G_COUNT, pool.length);
+        const atoms = {}; pool.forEach(i => { atoms[i] = gauntletBreakdown(masterDatabase[i]).total; });
+        const mean = pool.reduce((a, i) => a + atoms[i], 0) / pool.length;
+        const target = mean * size;
+        const shuffle = (arr) => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+        let best = null, bestDiff = Infinity;
+        for (let t = 0; t < 800; t++) {
+            const pick = shuffle(pool.slice()).slice(0, size);
+            const diff = Math.abs(pick.reduce((a, i) => a + atoms[i], 0) - target);
+            if (diff <= G_SET_TOLERANCE * target) return pick;           // first random draw that is balanced enough
+            if (diff < bestDiff) { best = pick; bestDiff = diff; }
+        }
+        return best;                                                      // (only if the pool is very lopsided) the closest draw
+    }
+
+    function gauntletElapsedS() {
+        if (gauntlet.phase !== 'playing') return gauntlet.frozenS;
+        return (performance.now() - gauntlet.start) / 1000 + gauntlet.penaltyS;
+    }
+
+    function openGauntletStart() {
+        if (authorMode) { alert("Leave author mode before starting the Gauntlet."); return; }
+        if (!currentMol) return;                       // chemistry engine still loading
+        document.getElementById('g-start-count').textContent = Math.min(G_COUNT, gauntletPool().length);
+        document.getElementById('gauntlet-start-modal').classList.remove('hidden');
+    }
+    function closeGauntletStart() { document.getElementById('gauntlet-start-modal').classList.add('hidden'); }
+    function closeGauntletFinal() { document.getElementById('gauntlet-final-modal').classList.add('hidden'); }
+
+    function startGauntlet() {
+        closeGauntletStart();
+        gauntlet = { active: true, order: gauntletPickSet(), pos: 0, results: [],
+                     returnIndex: currentIndex, phase: 'idle', timerId: null, start: 0, penaltyS: 0, penalties: 0, frozenS: 0 };
+        document.getElementById('gauntlet-hud').classList.remove('hidden');
+        document.getElementById('m-gauntlet-hud').classList.remove('hidden');
+        applyGauntletUI(true);
+        gauntletLoad();
+    }
+
+    // while playing: no dropdown, no back/forward, no show-answer; phones get Skip / Quit instead
+    function applyGauntletUI(on) {
+        document.getElementById('molecule-select').classList.toggle('hidden', on);
+        document.getElementById('g-open-btn').classList.toggle('hidden', on);
+        document.getElementById('m-compound-header').classList.toggle('hidden', on);
+        document.getElementById('m-nav').classList.toggle('hidden', on);
+        document.getElementById('mg-nav').classList.toggle('hidden', !on);
+        updateActionButton();
+    }
+
+    function gauntletLoad() {
+        currentIndex = gauntlet.order[gauntlet.pos];
+        loadMolecule();                                  // fresh, unpainted structure
+        gauntlet.phase = 'playing';
+        gauntlet.start = performance.now();
+        gauntlet.penaltyS = 0; gauntlet.penalties = 0;
+        gAll('run').forEach(e => e.classList.remove('hidden'));
+        gAll('done').forEach(e => e.classList.add('hidden'));
+        document.getElementById('g-progress').textContent = `Structure ${gauntlet.pos + 1} of ${gauntlet.order.length}`;
+        document.getElementById('mg-progress').textContent = `${gauntlet.pos + 1}/${gauntlet.order.length}`;
+        gAll('penalty').forEach(e => { e.textContent = ''; });
+        applyGauntletUI(true);
+        clearInterval(gauntlet.timerId);
+        gauntlet.timerId = setInterval(gauntletTick, 200);
+        gauntletTick();
+    }
+
+    function gauntletTick() {
+        if (!gauntletActive() || gauntlet.phase !== 'playing') return;
+        const el = gauntletElapsedS();
+        const remaining = Math.max(0, G_LIMIT_S - el);
+        const total = Math.ceil(remaining);
+        const tc = remaining > 60 ? 'text-emerald-400' : remaining > 20 ? 'text-amber-400' : 'text-rose-400';
+        const bc = remaining > 60 ? 'bg-emerald-500' : remaining > 20 ? 'bg-amber-500' : 'bg-rose-500';
+        gAll('timer').forEach(e => { e.textContent = `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`; G_TEXT.forEach(c => e.classList.remove(c)); e.classList.add(tc); });
+        gAll('bar').forEach(e => { e.style.width = (remaining / G_LIMIT_S * 100) + '%'; G_BARC.forEach(c => e.classList.remove(c)); e.classList.add(bc); });
+        gAll('mult').forEach(e => { e.textContent = Math.round(gauntletMultiplier(el) * 100) + '%'; });
+        if (el >= G_LIMIT_S) gauntletEnd('timeout');
+    }
+
+    // wrong "Check my answer": 15 seconds off the clock. Returns true if that ran the clock out.
+    function gauntletWrong() {
+        gauntlet.penaltyS += G_PENALTY_S; gauntlet.penalties++;
+        gAll('penalty').forEach(pen => {
+            pen.textContent = `⚠ −${gauntlet.penalties * G_PENALTY_S}s`;
+            pen.classList.add('animate-pulse'); setTimeout(() => pen.classList.remove('animate-pulse'), 1200);
+        });
+        if (gauntletElapsedS() >= G_LIMIT_S) { gauntletEnd('timeout'); return true; }
+        gauntletTick();
+        return false;
+    }
+
+    function gauntletSkip() {
+        if (!gauntletActive() || gauntlet.phase !== 'playing') return;
+        if (!confirm("Skip this structure for 0 points?")) return;
+        gauntletEnd('skipped');
+    }
+
+    // finish the current structure: 'solved' | 'timeout' | 'skipped'
+    function gauntletEnd(reason) {
+        if (!gauntletActive() || gauntlet.phase !== 'playing') return;
+        clearInterval(gauntlet.timerId);
+        const m = masterDatabase[currentIndex];
+        let elapsed = gauntletElapsedS();
+        if (reason === 'solved' && elapsed >= G_LIMIT_S) reason = 'timeout';        // answered in the last blink: too late
+        elapsed = Math.min(G_LIMIT_S, elapsed);
+        gauntlet.frozenS = elapsed;
+        gauntlet.phase = 'done';
+
+        const bd = gauntletBreakdown(m);
+        const mult = gauntletMultiplier(elapsed);
+        const terpeneOK = (reason === 'solved' && bd.iso > 0) ? gauntletTerpeneUnitsOK() : false;
+        const points = (reason === 'solved') ? Math.round((bd.other + bd.iso * (terpeneOK ? 2 : 1)) * mult) : 0;
+        gauntlet.results.push({ idx: currentIndex, reason, atoms: bd.total, iso: bd.iso, terpeneOK, mult, points, elapsed });
+
+        if (reason !== 'solved') {          // show the answer so there is something to learn from
+            paintAnswer(m);
+            answered = true; keyRevealed = true; gradeResult = null; activePathwayBrush = null;
+            document.getElementById('feedback').classList.add('hidden');
+            updateActionButton(); renderPathwayOptions(); updateBrushBanner(); renderMoleculeSVG();
+        }
+
+        let html;
+        if (reason === 'solved') {
+            html = `<span class="text-emerald-400">✅ Correct!</span> ${bd.total} atoms × ${Math.round(mult * 100)}% (${Math.round(elapsed)}s)`;
+            if (bd.iso > 0) html += terpeneOK
+                ? ` · <span class="text-lime-300">🌿 terpene bonus ×2 on ${bd.iso} atoms</span>`
+                : ` · <span class="text-slate-400">🌿 no terpene bonus (units must be touching groups of 5)</span>`;
+            html += ` = <span class="text-amber-300">+${points} points</span>`;
+        } else if (reason === 'timeout') html = `<span class="text-rose-400">⏱️ Time's up.</span> 0 points. The answer is shown on the structure.`;
+        else html = `<span class="text-slate-300">⏭️ Skipped.</span> 0 points. The answer is shown on the structure.`;
+        gAll('done-text').forEach(e => { e.innerHTML = html; });
+        document.getElementById('g-next-btn').textContent = (gauntlet.pos >= gauntlet.order.length - 1) ? '🏁 See final score' : 'Next structure ➔';
+        gAll('run').forEach(e => e.classList.add('hidden'));
+        gAll('done').forEach(e => e.classList.remove('hidden'));
+        updateActionButton();                // phones: puts "Next Structure" in the eraser's spot
+    }
+
+    function gauntletNext() {
+        if (!gauntletActive() || gauntlet.phase !== 'done') return;
+        gauntlet.pos++;
+        if (gauntlet.pos >= gauntlet.order.length) { finishGauntlet(); return; }
+        gauntletLoad();
+    }
+
+    function stopGauntlet() {
+        clearInterval(gauntlet.timerId);
+        gauntlet.active = false;
+        document.getElementById('gauntlet-hud').classList.add('hidden');
+        document.getElementById('m-gauntlet-hud').classList.add('hidden');
+        applyGauntletUI(false);
+        currentIndex = gauntlet.returnIndex;           // back to wherever the student was
+        loadMolecule();
+    }
+
+    function quitGauntlet() {
+        if (!gauntletActive()) return;
+        if (!confirm("Quit the Gauntlet? Your progress will be lost.")) return;
+        stopGauntlet();
+    }
+
+    // the end: just the score
+    function finishGauntlet() {
+        const results = gauntlet.results.slice();
+        stopGauntlet();
+        const total = results.reduce((a, r) => a + r.points, 0);
+        document.getElementById('g-final-total').textContent = total;
+        document.getElementById('g-final-solved').textContent = results.filter(r => r.reason === 'solved').length;
+        document.getElementById('g-final-count').textContent = results.length;
+        document.getElementById('g-final-rows').innerHTML = results.map((r, i) => {
+            const solved = r.reason === 'solved';
+            const label = solved ? '<span class="text-emerald-400">✅ Solved</span>' : r.reason === 'timeout' ? '<span class="text-rose-400">⏱️ Time up</span>' : '<span class="text-slate-400">⏭️ Skipped</span>';
+            const bonus = solved ? Math.round(r.mult * 100) + '%' + (r.terpeneOK ? ' 🌿×2' : '') : '–';
+            return `<tr class="border-b border-slate-700/60">
+                <td class="py-2 pr-2 text-slate-400">${i + 1}</td>
+                <td class="py-2 pr-2 text-slate-100">Compound ${r.idx + 1}</td>
+                <td class="py-2 pr-2">${label}</td>
+                <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${Math.round(r.elapsed)}s</td>
+                <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${solved ? r.atoms : '–'}</td>
+                <td class="py-2 pr-2 text-right tabular-nums hidden md:table-cell">${bonus}</td>
+                <td class="py-2 text-right tabular-nums font-bold text-amber-300">${r.points}</td></tr>`;
+        }).join('');
+        document.getElementById('gauntlet-final-modal').classList.remove('hidden');
+    }
 
     window.onload = initApp;
 </script>

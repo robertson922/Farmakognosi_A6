@@ -46,7 +46,10 @@
         .help-btn { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.5rem 1.15rem 0.5rem 0.6rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); border: 2px solid #10b981; color: #d1fae5; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background-color .15s, color .15s; }
         .help-btn:hover { background: rgba(16, 185, 129, 0.28); color: #fff; }
         .help-btn .ico { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 9999px; background: #10b981; color: #052e22; font-weight: 800; font-size: 1rem; flex-shrink: 0; }
-        .help-btn-wide { width: 100%; justify-content: center; margin-top: 0.75rem; padding: 0.7rem 1rem; border-radius: 1rem; }
+        .help-btn-lg { font-size: 1.1rem; padding: 0.6rem 1.35rem 0.6rem 0.7rem; background: rgba(16, 185, 129, 0.2); box-shadow: 0 0 12px rgba(16, 185, 129, 0.25); }
+        .help-btn-lg .ico { width: 1.85rem; height: 1.85rem; font-size: 1.1rem; }
+        .help-btn { white-space: nowrap; flex-shrink: 0; }
+        @media (max-width: 1279px) { .help-btn .hb-more { display: none; } }
         /* eraser: light, dashed and rose-coloured so it never looks like one more pathway */
         .eraser-tile { background: #fff1f2; border: 2px dashed #f43f5e; color: #9f1239; }
         .eraser-tile:hover { background: #ffe4e6; }
@@ -110,7 +113,7 @@
     <header class="bg-slate-800 border-b border-slate-700 py-3 px-5 hidden lg:flex justify-between items-center gap-4 shadow">
         <div class="flex items-center gap-5">
             <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Farmakognosi: biosyntesträning</h1>
-            <button onclick="openInstructions()" class="help-btn"><span class="ico" aria-hidden="true">?</span>Instruktioner</button>
+            <button onclick="openInstructions()" class="help-btn help-btn-lg"><span class="ico" aria-hidden="true">?</span>Hur gör jag?<span class="hb-more">&nbsp;Visa instruktionerna</span></button>
         </div>
         <div class="flex items-center gap-4">
             <button id="g-open-btn" onclick="openGauntletStart()" title="En valfri utmaning på tid. Du behöver den inte för att öva." class="px-4 py-2 rounded-xl border-2 border-dashed border-amber-500/70 text-amber-300 hover:bg-amber-500/10 text-sm font-semibold transition cursor-pointer">⚔️ Vill du ha en utmaning? <strong class="text-amber-200 tracking-wide">UTMANINGSLÄGE</strong></button>
@@ -150,9 +153,6 @@
                         💡 Jag har fastnat, visa svaret
                     </button>
                 </div>
-
-                <!-- always within reach, so students who closed the welcome window can find it again -->
-                <button onclick="openInstructions()" class="help-btn help-btn-wide"><span class="ico" aria-hidden="true">?</span>Hur gör jag? Visa instruktionerna</button>
 
                                 <!-- Author mode panel -->
                 <div id="author-panel" class="hidden mt-4 p-3.5 rounded-xl border border-indigo-700 bg-indigo-950/40 space-y-3">

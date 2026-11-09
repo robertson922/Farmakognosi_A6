@@ -42,6 +42,20 @@
         .zoom-btn .label { font-size: 0.7rem; font-weight: 700; }
 
         /* Isoprene unit chips (desktop panel and phone strip) */
+        /* eraser: light, dashed and rose-coloured so it never looks like one more pathway */
+        .eraser-tile { background: #fff1f2; border: 2px dashed #f43f5e; color: #9f1239; }
+        .eraser-tile:hover { background: #ffe4e6; }
+        .eraser-tile.is-on { background: #e11d48; border: 2px solid #fff; color: #fff; box-shadow: 0 0 0 2px #e11d48, 0 0 14px #e11d48; }
+        .eraser-ico { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 9999px; background: #e11d48; color: #fff; }
+        .eraser-tile.is-on .eraser-ico { background: #fff; color: #e11d48; }
+        .eraser-ico svg, .eraser-fab svg { width: 60%; height: 60%; }
+        /* the eraser toggle that floats on the drawing (top right) */
+        .eraser-fab { position: absolute; top: 0.5rem; right: 0.5rem; z-index: 25; display: flex; align-items: center; justify-content: center; gap: 0.4rem; width: 2.9rem; height: 2.9rem; border-radius: 9999px; background: #fff; border: 2px solid #e11d48; color: #e11d48; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.25); cursor: pointer; transition: background-color .15s, color .15s; }
+        .eraser-fab svg { width: 1.4rem; height: 1.4rem; }
+        .eraser-fab .lbl { display: none; }
+        .eraser-fab:hover { background: #fff1f2; }
+        .eraser-fab.is-on { background: #e11d48; color: #fff; border-color: #9f1239; }
+        @media (min-width: 1024px) { .eraser-fab { top: 0.75rem; right: 0.75rem; width: auto; padding: 0 1rem; font-size: 1rem; } .eraser-fab .lbl { display: inline; } }
         .g-count-btn { flex: 1; padding: 0.6rem 0; border-radius: 0.75rem; font-weight: 700; font-size: 1.25rem; color: #e2e8f0; background: #0f172a; border: 2px solid #475569; cursor: pointer; }
         .g-count-btn.is-on { background: #d97706; border-color: #fbbf24; color: #fff; }
         .g-count-btn span { display: block; font-size: 0.75rem; font-weight: 600; opacity: 0.8; }
@@ -305,7 +319,9 @@
                 </div>
 
                 <!-- phone only: which brush is in hand -->
-                <div class="lg:hidden absolute top-2 left-2 z-10 pointer-events-none max-w-[88%] flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-slate-300 shadow text-[13px] font-semibold text-slate-700">
+                <button id="eraser-fab" type="button" class="eraser-fab" onpointerdown="event.stopPropagation()" onclick="equipEraser()" title="Sudd: tryck på färgade atomer för att ta bort dem (kortkommando: E)" aria-label="Sudd" aria-pressed="false"></button>
+
+                <div class="lg:hidden absolute top-2 left-2 z-10 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-slate-300 shadow text-[13px] font-semibold text-slate-700" style="max-width: calc(100% - 4.5rem)">
                     <span id="m-brush-dot" class="w-3.5 h-3.5 rounded-full bg-slate-400 flex-shrink-0"></span>
                     <span id="m-brush-text">Välj en väg nedan och tryck på atomer</span>
                 </div>
@@ -521,19 +537,19 @@
             { hex: "#8969e2", rgb: [0.54, 0.41, 0.89] }
         ] }
     };
-    // What students see for each pathway: [name, subtitle]. The English constants above stay as internal keys.
+    // What students see for each pathway: [name, subtitle]. Named after the biosynthetic PATHWAY, not the compound class.
+    // The English constants above stay as internal keys.
     const PATH_LABELS = {
-        [ISO]:  ['Isoprenoid', ''],
-        [SHIK]: ['Shikimisyra', ''],
-        [ACET]: ['Acetat-&#8203;malonat', 'Polyketid'],
-        [ALK]:  ['Aminosyra', 'Alkaloid'],
-        [GLY]:  ['Foto&shy;syntes', 'Kolhydrat / Glykosid']
+        [ISO]:  ['MVA-/&#8203;MEP-vägen', 'IPP → terpenoider'],
+        [SHIK]: ['Shikimisyra&shy;vägen', 'fenyl&shy;propanoider'],
+        [ACET]: ['Acetat-&#8203;malonat&shy;vägen', 'polyketider, fettsyror'],
+        [ALK]:  ['Alifatisk amino&shy;syrasyntes', 'ornitin, lysin m.fl.'],
+        [GLY]:  ['Kolhydrat&shy;syntes', 'socker, glykosider']
     };
-    // plain-text version, e.g. "Acetat-malonat (Polyketid)"
+    // plain-text version (name only, the subtitles are too long for banners), e.g. "Acetat-malonatvägen"
     function pathLabel(p) {
         const l = PATH_LABELS[p]; if (!l) return p;
-        const name = l[0].replace(/&#8203;|&shy;/g, '');
-        return l[1] ? `${name} (${l[1]})` : name;
+        return l[0].replace(/&#8203;|&shy;/g, '');
     }
     const atomWord = (n) => n === 1 ? 'atom' : 'atomer';
     const ISO_UNIT_COLORS = PATHWAY_STYLES[ISO].shades;
@@ -549,76 +565,75 @@
        ============================================================ */
     let masterDatabase = [
   {"name":"Menthol","smiles":"CC1CCC(C(C1)O)C(C)C","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,8,9,10]},"isoUnits":[[10,8,9,4,3],[5,6,1,2,0]],"optional":[7],"rules":"The hydroxyl oxygen is optional. Any split of the ten carbons into isoprene units is accepted.","difficulty":"easy"},
-  {"name":"Cinnamaldehyde","smiles":"C1=CC=C(C=C1)C=CC=O","pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9]},"rules":"The aldehyde oxygen is optional.","difficulty":"easy"},
-  {"name":"Emodin","smiles":"CC1=CC2=C(C(=C1)O)C(=O)C3=C(C2=O)C=C(C=C3O)O","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]},"rules":"All five oxygens are optional — the C15 carbon skeleton is what is being assessed.","difficulty":"medium"},
-  {"name":"Quercetin","smiles":"C1=CC(=C(C=C1C2=C(C(=O)C3=C(C=C(C=C3O2)O)O)O)O)O","pathways":["SHIK","ACET"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,19,20,21],"ACET":[10,11,12,13,14,15,16,17,18]},"optional":[19],"rules":"All seven oxygens, including the pyranone ring oxygen, are optional.","difficulty":"medium"},
-  {"name":"Arbutin","smiles":"C1=CC(=CC=C1O)OC2C(C(C(C(O2)CO)O)O)O","pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6],"GLY":[7,8,9,10,11,12,13,14,15,16,17,18]},"altGroups":[{"atoms":[7],"pathways":["SHIK","GLY"],"allowBlank":false}],"rules":"The glycosidic oxygen may be counted as shikimate, as sugar, or left blank. The sugar hydroxyls and the phenol oxygen are optional.","difficulty":"medium"},
-  {"name":"8-Prenylnaringenin (Compound 6)","smiles":"CC(C)=CCC1=C(O)C=C(O)C2=C1O[C@H](C1=CC=C(O)C=C1)CC2=O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4],"ACET":[5,6,7,8,9,10,11,12,13],"SHIK":[14,15,16,17,18,19,20,21,22,23,24]},"isoUnits":[[4,3,1,2,0]],"difficulty":"medium"},
+  {"name":"Cinnamaldehyde","smiles":"C1=CC=C(C=C1)C=CC=O","pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8]},"optional":[9],"rules":"The aldehyde oxygen is optional.","difficulty":"easy"},
+  {"name":"Emodin","smiles":"CC1=CC2=C(C(=C1)O)C(=O)C3=C(C2=O)C=C(C=C3O)O","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,8,10,11,12,14,15,16,17]},"optional":[7,9,13,18,19],"rules":"All five oxygens are optional — the C15 carbon skeleton is what is being assessed.","difficulty":"medium"},
+  {"name":"Quercetin","smiles":"C1=CC(=C(C=C1C2=C(C(=O)C3=C(C=C(C=C3O2)O)O)O)O)O","pathways":["SHIK","ACET"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8],"ACET":[10,11,12,13,14,15]},"optional":[9,16,17,18,19,20,21],"rules":"All seven oxygens, including the pyranone ring oxygen, are optional.","difficulty":"medium"},
+  {"name":"Arbutin","smiles":"C1=CC(=CC=C1O)OC2C(C(C(C(O2)CO)O)O)O","pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5],"GLY":[8,9,10,11,12,14]},"optional":[6,7,13,15,16,17,18],"rules":"The glycosidic oxygen may be counted as shikimate, as sugar, or left blank. The sugar hydroxyls and the phenol oxygen are optional.","difficulty":"medium"},
+  {"name":"8-Prenylnaringenin (Compound 6)","smiles":"CC(C)=CCC1=C(O)C=C(O)C2=C1O[C@H](C1=CC=C(O)C=C1)CC2=O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4],"ACET":[5,6,8,9,11,12],"SHIK":[14,15,16,17,18,20,21,22,23]},"isoUnits":[[4,3,1,2,0]],"optional":[7,10,13,19,24],"difficulty":"medium"},
   {"name":"Sesquiterpene Ketone (Compound 7)","smiles":"C=C(C)[C@@H]1CC[C@@]2(C)CC(=O)C=C(C)[C@@]2(O)C1","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,9,11,12,13,14,16]},"isoUnits":[[9,8,6,7,5],[11,12,13,14,16],[3,4,1,0,2]],"optional":[10,15],"difficulty":"medium"},
-  {"name":"Acetylated Hopane Glycoside (Compound 10)","smiles":"CC(=O)OC[C@H]1O[C@@H](O[C@H]2[C@H](OC(C)=O)C[C@]3(C)C4=CC[C@]5(C)[C@H]6[C@H](O)C[C@@H](C(C)C)[C@]6(COC(C)=O)CC[C@@]5(C)[C@@H]4[C@@H](O)C[C@H]3C2(C)C)[C@H](O)[C@@H](O)[C@@H]1O","removeAtoms":[0,1,2,12,13,14,34,35,36],"pathways":["ISO","GLY"],"atomMap":{"GLY":[0,1,2,3,4,5,40,41,42,43,44,45],"ISO":[6,7,9,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,28,29,30,31,32,33,35,36,37,38,39]},"isoUnits":[[24,22,23,21,20],[26,25,28,17,18],[39,37,38,6,7],[9,10,11,36,35],[30,29,31,33,32],[12,13,14,15,16]],"optional":[8,19,27,34],"difficulty":"hard"},
-  {"name":"Phenethyl Octanoate (Compound 11)","smiles":"CCCCCCCC(=O)OCCC1=CC=CC=C1","pathways":["SHIK","ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8],"SHIK":[9,10,11,12,13,14,15,16,17]},"altGroups":[{"atoms":[9],"pathways":["SHIK","ACET"],"allowBlank":false}],"difficulty":"medium"},
-  {"name":"Nortriterpenoid Methyl Ester (Compound 12)","smiles":"COC(=O)CC[C@@H](C)[C@H]1CC(=O)[C@@]2(C)C3=C(C(=O)[C@@H](OC(C)=O)[C@]12C)[C@@]1(C)CC[C@H](O)C(C)(C)[C@@H]1CC3=O","removeAtoms":[0,1,2,3,4,20,21,22],"pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,7,8,9,10,11,13,15,16,17,18,19,20,21,23,24,25,26,27,28]},"isoUnits":[[25,23,24,21,20],[19,17,18,26,27],[9,28,7,8,5],[2,1,0,3,4],[10,11,13,15,16]],"optional":[6,12,14,22,29],"difficulty":"hard"},
-  {"name":"Neohesperidin (Compound 15)","smiles":"COC1=CC=C([C@@H]2CC(=O)C3=C(O)C=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O[C@@H]4O[C@@H](C)[C@H](O)[C@@H](O)[C@H]4O)C=C3O2)C=C1O","removeAtoms":[0],"pathways":["SHIK","ACET","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,39,40,41],"ACET":[9,10,11,12,13,36,37,38],"GLY":[14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]},"altGroups":[{"atoms":[14],"pathways":["GLY","ACET"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"Vitexin (Compound 16)","smiles":"O=C1C=C(C2=CC=C(O)C=C2)OC2=C([C@@H]3O[C@H](CO)[C@@H](O)[C@H](O)[C@H]3O)C(O)=CC(O)=C12","pathways":["SHIK","ACET","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10],"ACET":[11,12,13,25,26,27,28,29,30],"GLY":[14,15,16,17,18,19,20,21,22,23,24]},"difficulty":"medium"},
-  {"name":"Meroterpenoid Phloroglucinol (Compound 19)","smiles":"C/C1=C/C[C@H]2[C@@H](C[C@@]3(C)OC4=C(C[C@@H]3CC1)C(O)=C(C=O)C(O)=C4C(=O)CC(C)C)C2(C)C","pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,13,14,15,24,26,27,28,29,30,31,32],"ACET":[9,10,11,12,16,17,18,19,20,21,22,23]},"isoUnits":[[29,27,28,26,24],[31,30,32,4,5],[3,2,1,0,15],[14,13,7,6,8]],"cutBonds":[4],"optional":[25],"difficulty":"hard"},
-  {"name":"Lucidin Primeveroside / Anthraquinone Diglycoside (Compound 20)","smiles":"CC1=CC(O)=C2C(=O)C3=C(O[C@@H]4O[C@H](CO[C@@H]5O[C@H](CO)[C@@H](O)[C@H](O)[C@H]5O)[C@@H](O)[C@H](O)[C@H]4O)C=C(O)C=C3C(=O)C2=C1","pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,33,34,35,36,37,38,39,40,41],"GLY":[11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]},"altGroups":[{"atoms":[10],"pathways":["ACET","GLY"],"allowBlank":true}],"difficulty":"medium"},
-  {"name":"Acylated Oleanane Triterpenoid Saponin (Compound 21)","smiles":"CCC(C)C(=O)O[C@H]1[C@H](O)[C@]2(CO)[C@H](O)[C@H](O)[C@]3(C)C(=CC[C@@H]4[C@@]5(C)CC[C@H](O[C@@H]6O[C@H](C(=O)O)[C@@H](O)[C@H](O[C@H]7OC[C@@H](O)[C@@H](O)[C@@H]7O)[C@H]6O[C@@H]6O[C@H](CO)[C@@H](O)[C@H](O)[C@H]6O)C(C)(C)[C@@H]5CC[C@]43C)[C@@H]2CC1(C)C","pathways":["ISO","GLY"],"atomMap":{"ISO":[0,1,2,3,4,7,8,10,11,13,15,17,18,19,20,21,22,23,24,25,26,27,61,62,63,64,65,66,67,68,69,70,71,72,73],"GLY":[28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60]},"isoUnits":[[0,1,3,2,4],[7,71,72,70,73],[8,10,11,69,13],[15,17,18,19,20],[67,68,22,21,66],[65,64,23,24,25],[62,61,63,27,26]],"optional":[5,6,9,12,14,16],"difficulty":"hard"},
-  {"name":"Compound 22","smiles":"CC(C)=CCC1=CC([C@@H]2CC(=O)C3=C(O)C=C(O)C(CC=C(C)C)=C3O2)=CC=C1O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4,19,20,21,22,23],"SHIK":[5,6,7,8,9,10,11,26,27,28,29],"ACET":[12,13,14,15,16,17,18,24,25]},"isoUnits":[[19,20,21,22,23],[4,3,1,2,0]],"difficulty":"medium"},
-  {"name":"Compound 23","smiles":"COC[C@@H]1CC2=CC(OC)=C(OC)C=C2[C@H](C2=CC=C3OCOC3=C2)[C@H]1COC","removeAtoms":[0,9,12,21,28],"pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]},"cutBonds":[11,22],"optional":[0,23],"difficulty":"medium"},
-  {"name":"Compound 24","smiles":"COC1=CC=C(CCC(=O)O)C=C1OC","removeAtoms":[0,14],"pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12]},"difficulty":"easy"},
-  {"name":"Compound 25","smiles":"O=C1C=COC2=CC3=C(OCO3)C(O)=C12","removeAtoms":[9,10],"pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12]},"difficulty":"medium"},
+  {"name":"Acetylated Hopane Glycoside (Compound 10)","smiles":"CC(=O)OC[C@H]1O[C@@H](O[C@H]2[C@H](OC(C)=O)C[C@]3(C)C4=CC[C@]5(C)[C@H]6[C@H](O)C[C@@H](C(C)C)[C@]6(COC(C)=O)CC[C@@]5(C)[C@@H]4[C@@H](O)C[C@H]3C2(C)C)[C@H](O)[C@@H](O)[C@@H]1O","removeAtoms":[0,1,2,12,13,14,34,35,36],"pathways":["ISO","GLY"],"atomMap":{"GLY":[1,2,4,40,42,44],"ISO":[6,7,9,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,28,29,30,31,32,33,35,36,37,38,39]},"isoUnits":[[24,22,23,21,20],[26,25,28,17,18],[39,37,38,6,7],[9,10,11,36,35],[30,29,31,33,32],[12,13,14,15,16]],"optional":[0,3,5,8,19,27,34,41,43,45],"difficulty":"hard"},
+  {"name":"Phenethyl Octanoate (Compound 11)","smiles":"CCCCCCCC(=O)OCCC1=CC=CC=C1","pathways":["SHIK","ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7],"SHIK":[10,11,12,13,14,15,16,17]},"difficulty":"medium"},
+  {"name":"Nortriterpenoid Methyl Ester (Compound 12)","smiles":"COC(=O)CC[C@@H](C)[C@H]1CC(=O)[C@@]2(C)C3=C(C(=O)[C@@H](OC(C)=O)[C@]12C)[C@@]1(C)CC[C@H](O)C(C)(C)[C@@H]1CC3=O","removeAtoms":[0,20,21,22],"pathways":["ISO","ACET"],"atomMap":{"ACET":[1,3],"ISO":[4,5,6,7,8,9,11,12,13,14,15,17,19,20,21,22,23,24,25,27,28,29,30,31,32]},"isoUnits":[[29,27,28,25,24],[23,21,22,30,31],[13,32,11,12,9],[6,5,4,7,8],[14,15,17,19,20]],"optional":[10,16,18,26,33],"difficulty":"hard"},
+  {"name":"Neohesperidin (Compound 15)","smiles":"COC1=CC=C([C@@H]2CC(=O)C3=C(O)C=C(O[C@@H]4O[C@H](CO)[C@@H](O)[C@H](O)[C@H]4O[C@@H]4O[C@@H](C)[C@H](O)[C@@H](O)[C@H]4O)C=C3O2)C=C1O","removeAtoms":[0],"pathways":["SHIK","ACET","GLY"],"atomMap":{"SHIK":[1,2,3,4,5,6,7,39,40],"ACET":[9,10,12,13,36,37],"GLY":[15,17,18,20,22,24,26,28,29,30,32,34]},"optional":[0,8,11,14,16,19,21,23,25,27,31,33,35,38,41],"difficulty":"hard"},
+  {"name":"Vitexin (Compound 16)","smiles":"O=C1C=C(C2=CC=C(O)C=C2)OC2=C([C@@H]3O[C@H](CO)[C@@H](O)[C@H](O)[C@H]3O)C(O)=CC(O)=C12","pathways":["SHIK","ACET","GLY"],"atomMap":{"SHIK":[1,2,3,4,5,6,7,9,10],"ACET":[12,13,25,27,28,30],"GLY":[14,16,17,19,21,23]},"optional":[0,8,11,15,18,20,22,24,26,29],"difficulty":"medium"},
+  {"name":"Meroterpenoid Phloroglucinol (Compound 19)","smiles":"C/C1=C/C[C@H]2[C@@H](C[C@@]3(C)OC4=C(C[C@@H]3CC1)C(O)=C(C=O)C(O)=C4C(=O)CC(C)C)C2(C)C","pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,13,14,15,24,26,27,28,29,30,31,32],"ACET":[10,11,12,16,18,19,21,23]},"isoUnits":[[29,27,28,26,24],[31,30,32,4,5],[3,2,1,0,15],[14,13,7,6,8]],"cutBonds":[4],"optional":[9,17,20,22,25],"difficulty":"hard"},
+  {"name":"Lucidin Primeveroside / Anthraquinone Diglycoside (Compound 20)","smiles":"CC1=CC(O)=C2C(=O)C3=C(O[C@@H]4O[C@H](CO[C@@H]5O[C@H](CO)[C@@H](O)[C@H](O)[C@H]5O)[C@@H](O)[C@H](O)[C@H]4O)C=C(O)C=C3C(=O)C2=C1","pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,5,6,8,9,33,34,36,37,38,40,41],"GLY":[11,13,14,16,18,19,21,23,25,27,29,31]},"optional":[4,7,10,12,15,17,20,22,24,26,28,30,32,35,39],"difficulty":"medium"},
+  {"name":"Acylated Oleanane Triterpenoid Saponin (Compound 21)","smiles":"CCC(C)C(=O)O[C@H]1[C@H](O)[C@]2(CO)[C@H](O)[C@H](O)[C@]3(C)C(=CC[C@@H]4[C@@]5(C)CC[C@H](O[C@@H]6O[C@H](C(=O)O)[C@@H](O)[C@H](O[C@H]7OC[C@@H](O)[C@@H](O)[C@@H]7O)[C@H]6O[C@@H]6O[C@H](CO)[C@@H](O)[C@H](O)[C@H]6O)C(C)(C)[C@@H]5CC[C@]43C)[C@@H]2CC1(C)C","removeAtoms":[12],"pathways":["ISO","GLY"],"atomMap":{"ISO":[0,1,2,3,4,7,8,10,11,12,14,16,17,18,19,20,21,22,23,24,25,26,60,61,62,63,64,65,66,67,68,69,70,71,72],"GLY":[28,30,31,34,36,38,40,41,43,45,47,49,51,52,54,56,58]},"isoUnits":[[0,1,3,2,4],[7,70,71,69,72],[8,10,11,68,12],[14,16,17,18,19],[66,67,21,20,65],[64,63,22,23,24],[61,60,62,26,25]],"optional":[5,6,9,13,15,27,29,32,33,35,37,39,42,44,46,48,50,53,55,57,59],"difficulty":"hard"},
+  {"name":"Compound 22","smiles":"CC(C)=CCC1=CC([C@@H]2CC(=O)C3=C(O)C=C(O)C(CC=C(C)C)=C3O2)=CC=C1O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4,19,20,21,22,23],"SHIK":[5,6,7,8,9,10,26,27,28],"ACET":[12,13,15,16,18,24]},"isoUnits":[[19,20,21,22,23],[4,3,1,2,0]],"optional":[11,14,17,25,29],"difficulty":"medium"},
+  {"name":"Compound 23","smiles":"COC[C@@H]1CC2=CC(OC)=C(OC)C=C2[C@H](C2=CC=C3OCOC3=C2)[C@H]1COC","removeAtoms":[0,9,12,21,28],"pathways":["SHIK"],"atomMap":{"SHIK":[1,2,3,4,5,6,8,10,11,12,13,14,15,16,19,20,21,22]},"cutBonds":[11,22],"optional":[0,7,9,17,18,23],"difficulty":"medium"},
+  {"name":"Compound 24","smiles":"COC1=CC=C(CCC(=O)O)C=C1OC","removeAtoms":[0,14],"pathways":["SHIK"],"atomMap":{"SHIK":[1,2,3,4,5,6,7,10,11]},"optional":[0,8,9,12],"difficulty":"easy"},
+  {"name":"Compound 25","smiles":"O=C1C=COC2=CC3=C(OCO3)C(O)=C12","removeAtoms":[9,10],"pathways":["ACET"],"atomMap":{"ACET":[1,2,3,5,6,7,8,10,12]},"optional":[0,4,9,11],"difficulty":"medium"},
   {"name":"Compound 26","smiles":"C=C1CC[C@@H](C(C)(C)O)[C@H](O)/C=C(C)CC/C=C(C)CC[C@@H]1O","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,9,11,12,13,14,15,16,17,18,19,20,21]},"isoUnits":[[13,12,11,14,9],[18,17,16,15,19],[20,21,1,0,2],[3,4,5,7,6]],"optional":[8,10,22],"difficulty":"medium"},
-  {"name":"Compound 28","smiles":"COC(=O)C1=CC(O)=C2C(=O)C3=C(O)C=C(OC)C=C3C(=O)C2=C1","removeAtoms":[0,17],"pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]},"difficulty":"medium"},
-  {"name":"Compound 30","smiles":"O[C@]12CO[C@@H](C3=CC=C4OCOC4=C3)[C@@]1(O)CO[C@@H]2C1=CC=C2OCOC2=C1","removeAtoms":[10,24],"pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]},"cutBonds":[2,14,23],"optional":[0,3,14,16],"difficulty":"medium"},
+  {"name":"Compound 28","smiles":"COC(=O)C1=CC(O)=C2C(=O)C3=C(O)C=C(OC)C=C3C(=O)C2=C1","removeAtoms":[0,17],"pathways":["ACET"],"atomMap":{"ACET":[1,3,4,5,7,8,10,11,13,14,16,17,18,20,21]},"optional":[0,2,6,9,12,15,19],"difficulty":"medium"},
+  {"name":"Compound 30","smiles":"O[C@]12CO[C@@H](C3=CC=C4OCOC4=C3)[C@@]1(O)CO[C@@H]2C1=CC=C2OCOC2=C1","removeAtoms":[10,24],"pathways":["SHIK"],"atomMap":{"SHIK":[1,2,4,5,6,7,8,11,12,13,15,17,18,19,20,21,24,25]},"cutBonds":[23],"optional":[0,3,9,10,14,16,22,23],"difficulty":"medium"},
   {"name":"Compound 31","smiles":"C=CCCCCCCCCCCCCC=C","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]},"difficulty":"easy"},
-  {"name":"Compound 33","smiles":"CC(=O)O[C@H]1[C@@H](O[C@]2(COC(=O)/C=C/C3=CC=C(O)C=C3)O[C@H](COC(=O)/C=C/C3=CC=C(O)C=C3)[C@@H](O)[C@@H]2OC(=O)/C=C/C2=CC=C(O)C=C2)O[C@H](CO)[C@@H](O)[C@@H]1O","removeAtoms":[0,1,2],"pathways":["SHIK","GLY"],"atomMap":{"GLY":[0,1,2,3,4,5,6,18,19,20,21,33,34,35,36,48,49,50,51,52,53,54,55],"SHIK":[7,8,9,10,11,12,13,14,15,16,17,22,23,24,25,26,27,28,29,30,31,32,37,38,39,40,41,42,43,44,45,46,47]},"altGroups":[{"atoms":[6,21,36],"pathways":["SHIK","GLY"],"allowBlank":true}],"difficulty":"hard"},
+  {"name":"Compound 33","smiles":"CC(=O)O[C@H]1[C@@H](O[C@]2(COC(=O)/C=C/C3=CC=C(O)C=C3)O[C@H](COC(=O)/C=C/C3=CC=C(O)C=C3)[C@@H](O)[C@@H]2OC(=O)/C=C/C2=CC=C(O)C=C2)O[C@H](CO)[C@@H](O)[C@@H]1O","removeAtoms":[0,1,2],"pathways":["SHIK","GLY"],"atomMap":{"GLY":[1,2,4,5,19,20,33,35,49,50,52,54],"SHIK":[7,8,9,10,11,12,13,14,16,17,22,24,25,26,27,28,29,31,32,37,38,39,40,41,42,43,44,46,47]},"optional":[0,3,6,15,18,21,23,30,34,36,45,48,51,53,55],"difficulty":"hard"},
   {"name":"Compound 34","smiles":"COC1=C(O)C2=C(C(=O)C[C@H]3C(C)(C)CCC[C@]23C)C(O)=C1C(C)C","removeAtoms":[0],"pathways":["ISO"],"atomMap":{"ISO":[1,2,4,5,6,8,9,10,11,12,13,14,15,16,17,18,20,21,22,23]},"isoUnits":[[22,21,23,20,1],[18,5,4,2,6],[17,16,9,8,15],[14,13,10,12,11]],"optional":[0,3,7,19],"difficulty":"hard"},
-  {"name":"Compound 35","smiles":"C[C@@H]1O[C@H]([C@@H]([C@@H]([C@H]1OC(/C=C/C2=CC=C(O)C=C2)=O)O)O)OC3=C(C4=CC=C(C=C4)O)OC5=C(C3=O)C(O)=CC(O)=C5CCC(C)C","pathways":["ISO","SHIK","ACET","GLY"],"atomMap":{"GLY":[0,1,2,3,4,5,6,7,19,20,21],"SHIK":[8,9,10,11,12,13,14,15,16,17,18,22,23,24,25,26,27,28,29,30,34,35],"ACET":[31,32,33,36,37,38,39,40,41],"ISO":[42,43,44,45,46]},"isoUnits":[[42,43,44,45,46]],"altGroups":[{"atoms":[7],"pathways":["SHIK","GLY"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"Compound 36","smiles":"COC(=O)C1=C(C)C=C(OC(=O)C2=C(C)C=C(O)C(C=O)=C2O)C(C)=C1O","removeAtoms":[0],"pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]},"difficulty":"hard"},
-  {"name":"Compound 37","smiles":"COC(=O)C1=CC(O)=C(O)C(O)=C1","removeAtoms":[0],"pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11]},"difficulty":"easy"},
-  {"name":"Compound 38","smiles":"O=C1C=CC2=CC=C(O)C=C2O1","pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11]},"cutBonds":[10],"difficulty":"medium"},
+  {"name":"Compound 35","smiles":"C[C@@H]1O[C@H]([C@@H]([C@@H]([C@H]1OC(/C=C/C2=CC=C(O)C=C2)=O)O)O)OC3=C(C4=CC=C(C=C4)O)OC5=C(C3=O)C(O)=CC(O)=C5CCC(C)C","pathways":["ISO","SHIK","ACET","GLY"],"atomMap":{"GLY":[0,1,3,4,5,6],"SHIK":[8,9,10,11,12,13,14,16,17,18,22,23,24,25,26,27,28,29,34],"ACET":[32,33,36,38,39,41],"ISO":[42,43,44,45,46]},"isoUnits":[[42,43,44,45,46]],"optional":[2,7,15,19,20,21,30,31,35,37,40],"difficulty":"hard"},
+  {"name":"Compound 36","smiles":"COC(=O)C1=C(C)C=C(OC(=O)C2=C(C)C=C(O)C(C=O)=C2O)C(C)=C1O","removeAtoms":[0],"pathways":["ACET"],"atomMap":{"ACET":[1,3,4,5,6,7,9,11,12,13,14,15,17,18,20,22,23,24]},"optional":[0,2,8,10,16,19,21,25],"difficulty":"hard"},
+  {"name":"Compound 37","smiles":"COC(=O)C1=CC(O)=C(O)C(O)=C1","removeAtoms":[0],"pathways":["SHIK"],"atomMap":{"SHIK":[1,3,4,5,7,9,11]},"optional":[0,2,6,8,10],"difficulty":"easy"},
+  {"name":"Compound 38","smiles":"O=C1C=CC2=CC=C(O)C=C2O1","pathways":["SHIK"],"atomMap":{"SHIK":[1,2,3,4,5,6,7,9,10]},"cutBonds":[10],"optional":[0,8,11],"difficulty":"medium"},
   {"name":"Compound 39","smiles":"CC1=CC=C(C(C)C)C(O)=C1","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,10]},"isoUnits":[[6,5,7,4,3],[8,10,1,2,0]],"optional":[9],"difficulty":"easy"},
-  {"name":"Compound 40","smiles":"COC1=CC(/C=C/C(=O)O[C@H]2C[C@@](O)(C(=O)O)C[C@H](O)[C@@H]2O)=CC=C1O","removeAtoms":[0],"pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,21,22,23,24],"GLY":[8,9,10,11,12,13,14,15,16,17,18,19,20]},"altGroups":[{"atoms":[8],"pathways":["SHIK","GLY"],"allowBlank":true}],"difficulty":"medium"},
+  {"name":"Compound 40","smiles":"COC1=CC(/C=C/C(=O)O[C@H]2C[C@@](O)(C(=O)O)C[C@H](O)[C@@H]2O)=CC=C1O","removeAtoms":[0],"pathways":["SHIK","GLY"],"atomMap":{"SHIK":[1,2,3,4,5,6,21,22,23],"GLY":[9,10,11,13,16,17,19]},"optional":[0,7,8,12,14,15,18,20,24],"difficulty":"medium"},
   {"name":"Compound 41","smiles":"CC1=C(/C=C/C(C)=C/C=C/C(C)=C/C=C/C=C(C)/C=C/C=C(C)/C=C/C2=C(C)CCCC2(C)C)C(C)(C)CCC1","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39]},"isoUnits":[[33,31,32,30,29],[28,26,27,25,24],[23,21,22,20,19],[18,16,17,15,14],[13,12,10,11,9],[8,7,5,6,4],[3,2,0,1,39],[36,34,35,37,38]],"difficulty":"medium"},
-  {"name":"Compound 42","smiles":"C=CCC1=CC=C(OC(=O)CCC)C(OC)=C1","removeAtoms":[15],"pathways":["SHIK","ACET"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,13,14,15],"ACET":[8,9,10,11,12]},"difficulty":"medium"},
-  {"name":"Compound 44","smiles":"C/C=C/C/C(C)=C[C@H]1C/C=C/C=C/C[C@H](C)/C=C(C)[C@@H](OC)C/C=C/[C@@H](O[C@@H]2O[C@H](CO)[C@@H](O)[C@H](OC)[C@H]2O)CC(=O)O1","removeAtoms":[21,36],"pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,37,38,39,40],"GLY":[25,26,27,28,29,30,31,32,33,34,35,36]},"difficulty":"hard"},
-  {"name":"Compound 46","smiles":"CC(=O)OC[C@H]1C=C[C@@H]2[C@H](C(=O)O)[C@@H](OC(C)=O)O[C@@H](O[C@@H]3O[C@H](COC(C)=O)[C@@H](OC(C)=O)[C@H](OC(C)=O)[C@H]3OC(C)=O)[C@@H]21","removeAtoms":[0,1,2,15,16,17,26,27,28,31,32,33,36,37,38,41,42,43],"pathways":["ISO","GLY"],"atomMap":{"ISO":[1,2,3,4,5,6,7,10,13,26],"GLY":[14,15,16,17,18,19,20,21,22,23,24,25]},"isoUnits":[[6,10,5,7,4],[3,2,1,26,13]],"optional":[0,8,9,11,12],"difficulty":"hard"},
-  {"name":"Compound 48","smiles":"OC1=CC([C@@H]2OC[C@@H]3[C@@H](OC[C@]23O)C4=CC=C(C(O)=C4)O[C@@H]5O[C@@H]([C@@H]([C@@H]([C@@H]5O)O)O)CO)=CC=C1O","pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,32,33,34,35],"GLY":[20,21,22,23,24,25,26,27,28,29,30,31]},"cutBonds":[4,8,37],"optional":[5,9,12],"altGroups":[{"atoms":[20],"pathways":["GLY","SHIK"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"Compound 49","smiles":"OC1=CC([C@@H]2C3=C(C(O)=C(C=C3C[C@H]([C@@H]2CO[C@@H]4O[C@@H]([C@@H]([C@@H]([C@@H]4O)O)O)CO)CO)O)O)=CC(O)=C1O","pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,28,29,30,31,32,33,34,35,36],"GLY":[16,17,18,19,20,21,22,23,24,25,26,27]},"cutBonds":[4,13],"optional":[29],"altGroups":[{"atoms":[16],"pathways":["GLY","SHIK"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"Compound 52","smiles":"CCC(=O)CC(=O)C1=C(CC(=O)OC)C=C2C(=O)C3=CC=CC(O)=C3C(=O)C2=C1O","removeAtoms":[13],"pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28]},"difficulty":"hard"},
+  {"name":"Compound 42","smiles":"C=CCC1=CC=C(OC(=O)CCC)C(OC)=C1","removeAtoms":[15],"pathways":["SHIK","ACET"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,13,15],"ACET":[8,10,11,12]},"optional":[7,9,14],"difficulty":"medium"},
+  {"name":"Compound 46","smiles":"CC(=O)OC[C@H]1C=C[C@@H]2[C@H](C(=O)O)[C@@H](OC(C)=O)O[C@@H](O[C@@H]3O[C@H](COC(C)=O)[C@@H](OC(C)=O)[C@H](OC(C)=O)[C@H]3OC(C)=O)[C@@H]21","removeAtoms":[0,1,2,15,16,17,26,27,28,31,32,33,36,37,38,41,42,43],"pathways":["ISO","GLY"],"atomMap":{"ISO":[1,2,3,4,5,6,7,10,13,26],"GLY":[15,17,18,20,22,24]},"isoUnits":[[6,10,5,7,4],[3,2,1,26,13]],"optional":[0,8,9,11,12,14,16,19,21,23,25],"difficulty":"hard"},
+  {"name":"Compound 48","smiles":"OC1=CC([C@@H]2OC[C@@H]3[C@@H](OC[C@]23O)C4=CC=C(C(O)=C4)O[C@@H]5O[C@@H]([C@@H]([C@@H]([C@@H]5O)O)O)CO)=CC=C1O","pathways":["SHIK","GLY"],"atomMap":{"SHIK":[1,2,3,4,6,7,8,10,11,13,14,15,16,17,18,19,32,33,34],"GLY":[21,22,23,24,25,26,30]},"cutBonds":[37],"optional":[0,5,9,12,20,27,28,29,31,35],"difficulty":"hard"},
+  {"name":"Compound 49","smiles":"OC1=CC([C@@H]2C3=C(C(O)=C(C=C3C[C@H]([C@@H]2CO[C@@H]4O[C@@H]([C@@H]([C@@H]([C@@H]4O)O)O)CO)CO)O)O)=CC(O)=C1O","pathways":["SHIK","GLY"],"atomMap":{"SHIK":[1,2,3,4,5,6,7,9,10,11,12,13,14,15,28,32,33,35],"GLY":[17,19,20,21,22,26]},"cutBonds":[4,13],"optional":[0,8,16,18,23,24,25,27,29,30,31,34,36],"difficulty":"hard"},
+  {"name":"Compound 52","smiles":"CCC(=O)CC(=O)C1=C(CC(=O)OC)C=C2C(=O)C3=CC=CC(O)=C3C(=O)C2=C1O","removeAtoms":[13],"pathways":["ACET"],"atomMap":{"ACET":[0,1,2,4,5,7,8,9,10,13,14,15,17,18,19,20,21,23,24,26,27]},"optional":[3,6,11,12,16,22,25,28],"difficulty":"hard"},
   {"name":"Compound 53","smiles":"C=C1C(=O)O[C@H]2[C@H]1[C@H](OC(=O)/C(C)=C\\C)CC(=C)[C@@H]1[C@H](O)[C@H]3O[C@@]3(C)[C@@]12O","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,5,6,7,9,11,12,13,14,15,16,17,18,19,21,23,24,25]},"isoUnits":[[12,11,13,14,9],[17,16,15,7,18],[25,23,21,19,24],[6,1,0,2,5]],"optional":[3,4,8,10,20,22,26],"difficulty":"hard"},
-  {"name":"Compound 54","smiles":"C[C@H]1C[C@@H](O)/C=C/[C@@H](O)/C=C\\C(=O)O1","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13]},"difficulty":"medium"},
+  {"name":"Compound 54","smiles":"C[C@H]1C[C@@H](O)/C=C/[C@@H](O)/C=C\\C(=O)O1","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,5,6,7,9,10,11]},"optional":[4,8,12,13],"difficulty":"medium"},
   {"name":"Compound 55","smiles":"C=C1CC[C@H]2C[C@@H]1[C@]2(CO)C[C@H](O)/C=C(\\C)C(=O)O","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,10,11,13,14,15,16]},"isoUnits":[[15,14,16,13,11],[0,1,2,6,5],[7,8,10,4,3]],"optional":[9,12,17,18],"difficulty":"medium"},
-  {"name":"Compound 56","smiles":"C=C(CO)[C@H]1C/C=C(\\C)CC/C=C(/C)CC/C=C(\\C)CC1","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},"isoUnits":[[18,17,16,19,15],[14,12,13,11,10],[9,7,8,6,5],[4,20,1,2,0]],"difficulty":"medium"},
-  {"name":"Compound 57","smiles":"C/C=C/C1=CC=C(O[C@@H](C)[C@H](O)C2=CC=C(O)C=C2)C=C1","pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},"cutBonds":[7],"optional":[7,11],"difficulty":"medium"},
-  {"name":"Compound 58","smiles":"CCCCCCCC1=CC(O)=CC(O[C@@H]2O[C@H](CO)[C@@H](OC)[C@H](O)[C@H]2O)=C1","removeAtoms":[21],"pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,25],"GLY":[13,14,15,16,17,18,19,20,21,22,23,24]},"difficulty":"medium"},
+  {"name":"Compound 56","smiles":"C=C(CO)[C@H]1C/C=C(\\C)CC/C=C(/C)CC/C=C(\\C)CC1","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},"isoUnits":[[18,17,16,19,15],[14,12,13,11,10],[9,7,8,6,5],[4,20,1,2,0]],"optional":[3],"difficulty":"medium"},
+  {"name":"Compound 57","smiles":"C/C=C/C1=CC=C(O[C@@H](C)[C@H](O)C2=CC=C(O)C=C2)C=C1","pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,8,9,10,12,13,14,15,17,18,19,20]},"cutBonds":[7],"optional":[7,11,16],"difficulty":"medium"},
+  {"name":"Compound 58","smiles":"CCCCCCCC1=CC(O)=CC(O[C@@H]2O[C@H](CO)[C@@H](OC)[C@H](O)[C@H]2O)=C1","removeAtoms":[21],"pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,11,12,25],"GLY":[14,16,17,19,21,23]},"optional":[10,13,15,18,20,22,24],"difficulty":"medium"},
   {"name":"Compound 60","smiles":"C=C1C(=O)O[C@@H]2CC(=C)[C@@H]3CC=C(C)[C@@H]3C[C@H]12","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,5,6,7,8,9,10,11,12,13,14,15,16]},"isoUnits":[[13,12,11,14,10],[9,7,6,8,5],[0,1,2,16,15]],"optional":[3,4],"difficulty":"hard"},
-  {"name":"46","smiles":"CO[C@H]1[C@H](O)[C@@H](O)[C@@H](O)[C@H](O)[C@@H]1O","removeAtoms":[0],"pathways":["GLY"],"atomMap":{"GLY":[0,1,2,3,4,5,6,7,8,9,10,11]},"difficulty":"easy"},
-  {"name":"47","smiles":"CC[C@@H]1OC(=O)C[C@@H](O)[C@H](C)[C@H](O[C@@H]2C[C@@H](N(C)C)[C@@H](O)[C@@H](C)O2)[C@H](CC=O)C[C@H](C)C(=O)/C=C/[C@]2(C)O[C@@H]2[C@@H]1CO[C@H]1O[C@H](C)[C@H](O)[C@H](OC)[C@@H]1OC","removeAtoms":[13,14,15,16,17,18,19,20,21,22,23,50,53],"pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29],"GLY":[30,31,32,33,34,35,36,37,38,39,40]},"altGroups":[{"atoms":[30],"pathways":["ACET","GLY"],"allowBlank":true}],"difficulty":"medium"},
-  {"name":"48","smiles":"O[C@@H]1[C@@H](O)[C@H](O[C@@H]2CO[C@H](O)[C@H](O)[C@H]2O)OC[C@H]1O","pathways":["GLY"],"atomMap":{"GLY":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]},"difficulty":"easy"},
-  {"name":"49","smiles":"COC1=CC(COC(=O)C(C)C)=CC=C1C(C)C","removeAtoms":[0],"pathways":["ISO","ACET"],"atomMap":{"ISO":[1,2,3,4,11,12,13,14,15,16],"ACET":[5,6,7,8,9,10]},"isoUnits":[[15,14,16,13,1],[2,3,11,12,4]],"optional":[0],"altGroups":[{"atoms":[5],"pathways":["ISO","ACET"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"50","smiles":"CC[C@H]1OC(=O)[C@H](C)[C@H](O)[C@H](C)[C@H](O)[C@H](C)C[C@H](C)C(=O)[C@H](C)[C@H](O)[C@]1(C)O","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]},"difficulty":"hard"},
+  {"name":"46","smiles":"CO[C@H]1[C@H](O)[C@@H](O)[C@@H](O)[C@H](O)[C@@H]1O","removeAtoms":[0],"pathways":["GLY"],"atomMap":{"GLY":[1,2,4,6,8,10]},"optional":[0,3,5,7,9,11],"difficulty":"easy"},
+  {"name":"47","smiles":"CC[C@@H]1OC(=O)C[C@@H](O)[C@H](C)[C@H](O[C@@H]2C[C@@H](N(C)C)[C@@H](O)[C@@H](C)O2)[C@H](CC=O)C[C@H](C)C(=O)/C=C/[C@]2(C)O[C@@H]2[C@@H]1CO[C@H]1O[C@H](C)[C@H](O)[C@H](OC)[C@@H]1OC","removeAtoms":[13,14,15,16,17,18,19,20,21,22,23,50,53],"pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,4,6,7,9,10,11,13,14,15,17,18,19,20,22,23,24,25,27,28,29],"GLY":[31,33,34,35,37,39]},"optional":[3,5,8,12,16,21,26,30,32,36,38,40],"difficulty":"medium"},
+  {"name":"48","smiles":"O[C@@H]1[C@@H](O)[C@H](O[C@@H]2CO[C@H](O)[C@H](O)[C@H]2O)OC[C@H]1O","pathways":["GLY"],"atomMap":{"GLY":[1,2,4,6,7,9,11,13,16,17]},"optional":[0,3,5,8,10,12,14,15,18],"difficulty":"easy"},
+  {"name":"49","smiles":"COC1=CC(COC(=O)C(C)C)=CC=C1C(C)C","removeAtoms":[0],"pathways":["ISO","ACET"],"atomMap":{"ISO":[1,2,3,4,11,12,13,14,15,16],"ACET":[6,8,9,10]},"isoUnits":[[15,14,16,13,1],[2,3,11,12,4]],"optional":[0,5,7],"difficulty":"hard"},
+  {"name":"50","smiles":"CC[C@H]1OC(=O)[C@H](C)[C@H](O)[C@H](C)[C@H](O)[C@H](C)C[C@H](C)C(=O)[C@H](C)[C@H](O)[C@]1(C)O","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,4,6,7,8,10,11,12,14,15,16,17,18,19,21,22,23,25,26]},"optional":[3,5,9,13,20,24,27],"difficulty":"hard"},
   {"name":"51","smiles":"C=C(C)[C@H](O)CC[C@]1(C)[C@@H](CC=C(C)C)C[C@@]2(CC=C(C)C)C(=O)[C@]1(C(=O)C(C)C)C(=O)C1=C2O[C@H](C(C)(C)O)C1","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,25,27,28,29,30,32,33,35,36,37,38,40]},"isoUnits":[[38,37,36,35,40],[29,27,28,25,24],[0,1,2,3,5],[14,12,13,11,10],[20,19,21,18,17],[8,7,6,9,15],[16,22,33,32,30]],"optional":[4,23,26,31,34,39],"difficulty":"hard"},
-  {"name":"52","smiles":"C=CC(C)(C)C1=C(O)C=CC2=C1OC1=C(O)C(OC)=C(CC=C(C)C)C(O)=C1C2=O","removeAtoms":[18],"pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,3,4,19,20,21,22,23],"ACET":[5,6,7,8,9,10,11,12,13,14,15,16,17,18,24,25,26,27,28]},"isoUnits":[[22,21,23,20,19],[0,1,2,4,3]],"difficulty":"hard"},
-  {"name":"53","smiles":"CC(C)=CCC1=CC=C(C2=C(O)C(=O)C3=C4OC(C)(C)CCC4=C(O)C(CC=C(C)C)=C3O2)C=C1O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4,17,18,19,20,21,26,27,28,29,30],"SHIK":[5,6,7,8,9,10,11,12,13,33,34,35],"ACET":[14,15,16,22,23,24,25,31,32]},"isoUnits":[[0,2,1,3,4],[19,17,18,20,21],[29,28,30,27,26]],"optional":[11],"difficulty":"hard"},
-  {"name":"54","smiles":"O=C1C2=CC(O)=C(O)C=C2OC2=CC(O)=C(O)C=C12","pathways":["ACET"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]},"difficulty":"medium"},
-  {"name":"55","smiles":"CC(C)(O)C1=CC=C2C(=C1)C(=O)C[C@H]1[C@](C)(COC(=O)CCC(=O)O)CCC[C@]21C","pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,4,5,6,7,8,9,10,12,13,14,15,16,25,26,27,28,29],"ACET":[17,18,19,20,21,22,23,24]},"isoUnits":[[1,0,2,4,10],[5,6,7,8,9],[12,13,28,29,27],[15,14,16,25,26]],"optional":[3,11],"difficulty":"hard"},
-  {"name":"56","smiles":"C=C(CC)[C@H](C)C[C@@H](C[C@@H](C)C[C@@H](C)[C@H](C)O)OC(=O)/C=C(\\C)CO[C@H]1O[C@H](CO)[C@@H](O)[C@H]1O","pathways":["ISO","ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],"ISO":[18,20,21,22,23],"GLY":[24,25,26,27,28,29,30,31,32,33]},"isoUnits":[[22,21,23,20,18]],"optional":[19],"difficulty":"hard"},
-  {"name":"57","smiles":"OC1=CC=C2OCC=CC2=C1","pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10]},"cutBonds":[4],"difficulty":"easy"},
-  {"name":"58","smiles":"CC(=O)OC/C=C(\\CC/C=C(\\C)CC[C@@H]1C(C)=CCCC1(C)C)COC(C)=O","removeAtoms":[0,1,2,3,24,25,26,27],"pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]},"isoUnits":[[18,16,17,15,14],[13,11,12,10,9],[8,6,7,5,4],[3,2,19,0,1]],"difficulty":"medium"},
-  {"name":"59","smiles":"CC(C)=CCC1=C(C2=CC(O)=C(O)C=C2O)OC2=C(CC=C(C)C)C3=C(C=CC(C)(C)O3)C(O)=C2C1=O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4,19,20,21,22,23,26,27,28,29,30],"SHIK":[5,6,7,8,9,10,11,12,13,14,15,35,36],"ACET":[16,17,18,24,25,31,32,33,34]},"isoUnits":[[30,28,29,27,26],[22,21,23,19,20],[2,1,0,3,4]],"difficulty":"hard"},
-  {"name":"60","smiles":"C=C1C(O[C@H]2C1[C@@H](O)CC(C)=C3CC=C(CO[C@H]4O[C@H]([C@@H]([C@H]([C@@H]4O)O)O)COC(/C=C/C5=CC=C(C=C5)O)=O)[C@@H]32)=O","pathways":["ISO","SHIK","GLY"],"atomMap":{"ISO":[0,1,2,4,5,6,8,9,10,11,12,13,14,15,39],"GLY":[16,17,18,19,20,21,22,23,24,25,26,27],"SHIK":[28,29,30,31,32,33,34,35,36,37,38]},"isoUnits":[[0,1,2,5,4],[10,9,8,6,11],[15,14,13,12,39]],"optional":[3,7,40],"altGroups":[{"atoms":[27],"pathways":["SHIK","GLY"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"62","smiles":"CC(C)C1CCC(CO[C@@H]2[C@@H](O)[C@H](O)[C@@H](O)[C@H](CO)O2)C=C1","pathways":["ISO","GLY"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,20,21],"GLY":[8,9,10,11,12,13,14,15,16,17,18,19]},"isoUnits":[[0,1,2,3,21],[7,6,20,5,4]],"difficulty":"medium"},
-  {"name":"65","smiles":"C[C@@H]1O[C@H]([C@@H]([C@@H]([C@H]1OC(/C=C/C2=CC=C(O)C=C2)=O)OC(CCCCC)=O)O)OC3=C(C4=CC=C(C=C4)O)OC5=C(C3=O)C(O)=CC(O)=C5","pathways":["SHIK","ACET","GLY"],"atomMap":{"GLY":[0,1,2,3,4,5,6,7,19,27,28],"SHIK":[8,9,10,11,12,13,14,15,16,17,18,29,30,31,32,33,34,35,36,37,41,42],"ACET":[20,21,22,23,24,25,26,38,39,40,43,44,45,46,47,48]},"altGroups":[{"atoms":[7,19,28],"pathways":["GLY","ACET"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"67","smiles":"CC(C)CCC1=CC(O)=CC2=C1C(=O)C1=C(O)C=C(O)C=C1C2=O","pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,3,4],"ACET":[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]},"isoUnits":[[4,3,1,2,0]],"difficulty":"hard"},
-  {"name":"68","smiles":"CC1(C)C=CC2=C(O1)C(O)=CC1=C2C=CC(=O)O1","pathways":["ISO","SHIK"],"atomMap":{"ISO":[0,1,2,3,4],"SHIK":[5,6,7,8,9,10,11,12,13,14,15,16,17]},"isoUnits":[[2,1,0,3,4]],"cutBonds":[18],"difficulty":"hard"},
-  {"name":"71","smiles":"CC1=CC(O)=C2C3=C(C(=O)C4=C(O[C@H]5C[C@@H](O)[C@H](O)[C@@H](C)O5)C=CC(O)=C4C3=O)[C@H](O)CC2=C1","pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,22,23,24,25,26,27,28,29,30,31,32,33],"GLY":[12,13,14,15,16,17,18,19,20,21]},"altGroups":[{"atoms":[12],"pathways":["GLY","ACET"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"72","smiles":"COC1=CC([C@@H]2O[C@H](C3=CC(OC)=C4OCOC4=C3)[C@@H](C)[C@@H]2C)=CC(OC)=C1O","removeAtoms":[0,12,15,26],"pathways":["SHIK"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]},"cutBonds":[16],"optional":[5],"difficulty":"hard"},
-  {"name":"73","smiles":"COC1=CC2=C(C=C1O)C[C@](O)(CO)[C@H](CO)[C@@H]2C1=CC=C(O[C@@H]2O[C@@H](CO)[C@@H](O)[C@@H](O)[C@H]2O)C(OC)=C1","removeAtoms":[0,36],"pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,33,34,35],"GLY":[21,22,23,24,25,26,27,28,29,30,31,32]},"cutBonds":[12,37],"optional":[10,12,15],"altGroups":[{"atoms":[21],"pathways":["SHIK","GLY"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"74","smiles":"COC(=O)C1=C(O[C@@H]2O[C@@H](C)[C@H](OC)[C@H](OC)[C@H]2OC)C=C2C=C3C(=O)[C@@]4(O)C(=O)C(OC)=CC(=O)[C@@]4(OC)C(=O)C3=C(O)C2=C1C","removeAtoms":[0,13,16,19,32,38],"pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40],"GLY":[5,6,7,8,9,10,11,12,13,14,15]},"optional":[23,32],"altGroups":[{"atoms":[5],"pathways":["GLY","ACET"],"allowBlank":true}],"difficulty":"hard"},
-  {"name":"76","smiles":"O=C(/C=C/C1=CC=C(C=C1)O)OC[C@]2(O[C@@H]([C@H]([C@@H]2OC(/C=C/C3=CC=C(C=C3)O)=O)O)COC(/C=C/C4=CC=C(C=C4)O)=O)OC(C)=O","removeAtoms":[45,46,47],"pathways":["SHIK","GLY"],"atomMap":{"SHIK":[0,1,2,3,4,5,6,7,8,9,10,19,20,21,22,23,24,25,26,27,28,29,33,34,35,36,37,38,39,40,41,42,43],"GLY":[11,12,13,14,15,16,17,18,30,31,32,44]},"altGroups":[{"atoms":[11,18,32,44],"pathways":["GLY","ACET"],"allowBlank":true}],"difficulty":"hard"},
+  {"name":"52","smiles":"C=CC(C)(C)C1=C(O)C=CC2=C1OC1=C(O)C(OC)=C(CC=C(C)C)C(O)=C1C2=O","removeAtoms":[18],"pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,3,4,19,20,21,22,23],"ACET":[5,6,8,9,10,11,13,14,16,18,24,26,27]},"isoUnits":[[22,21,23,20,19],[0,1,2,4,3]],"optional":[7,12,15,17,25,28],"difficulty":"hard"},
+  {"name":"53","smiles":"CC(C)=CCC1=CC=C(C2=C(O)C(=O)C3=C4OC(C)(C)CCC4=C(O)C(CC=C(C)C)=C3O2)C=C1O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4,17,18,19,20,21,26,27,28,29,30],"SHIK":[5,6,7,8,9,10,12,33,34],"ACET":[14,15,22,23,25,31]},"isoUnits":[[0,2,1,3,4],[19,17,18,20,21],[29,28,30,27,26]],"optional":[11,13,16,24,32,35],"difficulty":"hard"},
+  {"name":"54","smiles":"O=C1C2=CC(O)=C(O)C=C2OC2=CC(O)=C(O)C=C12","pathways":["ACET"],"atomMap":{"ACET":[1,2,3,4,6,8,9,11,12,13,15,17,18]},"optional":[0,5,7,10,14,16],"difficulty":"medium"},
+  {"name":"55","smiles":"CC(C)(O)C1=CC=C2C(=C1)C(=O)C[C@H]1[C@](C)(COC(=O)CCC(=O)O)CCC[C@]21C","pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,4,5,6,7,8,9,10,12,13,14,15,16,25,26,27,28,29],"ACET":[18,20,21,22]},"isoUnits":[[1,0,2,4,10],[5,6,7,8,9],[12,13,28,29,27],[15,14,16,25,26]],"optional":[3,11,17,19,23,24],"difficulty":"hard"},
+  {"name":"56","smiles":"C=C(CC)[C@H](C)C[C@@H](C[C@@H](C)C[C@@H](C)[C@H](C)O)OC(=O)/C=C(\\C)CO[C@H]1O[C@H](CO)[C@@H](O)[C@H]1O","pathways":["ISO","ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"ISO":[18,20,21,22,23],"GLY":[25,27,28,30,32]},"isoUnits":[[22,21,23,20,18]],"optional":[16,17,19,24,26,29,31,33],"difficulty":"hard"},
+  {"name":"57","smiles":"OC1=CC=C2OCC=CC2=C1","pathways":["SHIK"],"atomMap":{"SHIK":[1,2,3,4,6,7,8,9,10]},"cutBonds":[4],"optional":[0,5],"difficulty":"easy"},
+  {"name":"58","smiles":"CC(=O)OC/C=C(\\CC/C=C(\\C)CC[C@@H]1C(C)=CCCC1(C)C)COC(C)=O","removeAtoms":[0,1,2,25,26,27],"pathways":["ISO"],"atomMap":{"ISO":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]},"isoUnits":[[19,17,18,16,15],[14,12,13,11,10],[9,7,8,6,5],[4,3,20,1,2]],"optional":[0,21],"difficulty":"hard"},
+  {"name":"59","smiles":"CC(C)=CCC1=C(C2=CC(O)=C(O)C=C2O)OC2=C(CC=C(C)C)C3=C(C=CC(C)(C)O3)C(O)=C2C1=O","pathways":["ISO","SHIK","ACET"],"atomMap":{"ISO":[0,1,2,3,4,19,20,21,22,23,26,27,28,29,30],"SHIK":[5,6,7,8,9,11,13,14,35],"ACET":[17,18,24,25,32,34]},"isoUnits":[[30,28,29,27,26],[22,21,23,19,20],[2,1,0,3,4]],"optional":[10,12,15,16,31,33,36],"difficulty":"hard"},
+  {"name":"60","smiles":"C=C1C(O[C@H]2C1[C@@H](O)CC(C)=C3CC=C(CO[C@H]4O[C@H]([C@@H]([C@H]([C@@H]4O)O)O)COC(/C=C/C5=CC=C(C=C5)O)=O)[C@@H]32)=O","pathways":["ISO","SHIK","GLY"],"atomMap":{"ISO":[0,1,2,4,5,6,8,9,10,11,12,13,14,15,39],"GLY":[17,19,20,21,22,26],"SHIK":[28,29,30,31,32,33,34,35,36]},"isoUnits":[[0,1,2,5,4],[10,9,8,6,11],[15,14,13,12,39]],"optional":[3,7,16,18,23,24,25,27,38,40],"difficulty":"hard"},
+  {"name":"62","smiles":"CC(C)C1CCC(CO[C@@H]2[C@@H](O)[C@H](O)[C@@H](O)[C@H](CO)O2)C=C1","pathways":["ISO","GLY"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,20,21],"GLY":[9,10,12,14,16,17]},"isoUnits":[[0,1,2,3,21],[7,6,20,5,4]],"optional":[8,11,13,15,18,19],"difficulty":"medium"},
+  {"name":"65","smiles":"C[C@@H]1O[C@H]([C@@H]([C@@H]([C@H]1OC(/C=C/C2=CC=C(O)C=C2)=O)OC(CCCCC)=O)O)OC3=C(C4=CC=C(C=C4)O)OC5=C(C3=O)C(O)=CC(O)=C5","pathways":["SHIK","ACET","GLY"],"atomMap":{"GLY":[0,1,3,4,5,6],"SHIK":[8,9,10,11,12,13,14,16,17,29,30,31,32,33,34,35,36,41],"ACET":[20,21,22,23,24,25,39,40,43,45,46,48]},"optional":[2,7,15,18,19,26,27,28,37,38,42,44,47],"difficulty":"hard"},
+  {"name":"67","smiles":"CC(C)CCC1=CC(O)=CC2=C1C(=O)C1=C(O)C=C(O)C=C1C2=O","pathways":["ISO","ACET"],"atomMap":{"ISO":[0,1,2,3,4],"ACET":[5,6,7,9,10,11,12,14,15,17,18,20,21,22]},"isoUnits":[[4,3,1,2,0]],"optional":[8,13,16,19,23],"difficulty":"hard"},
+  {"name":"68","smiles":"CC1(C)C=CC2=C(O1)C(O)=CC1=C2C=CC(=O)O1","pathways":["ISO","SHIK"],"atomMap":{"ISO":[0,1,2,3,4],"SHIK":[5,6,8,10,11,12,13,14,15]},"isoUnits":[[2,1,0,3,4]],"cutBonds":[18],"optional":[7,9,16,17],"difficulty":"hard"},
+  {"name":"71","smiles":"CC1=CC(O)=C2C3=C(C(=O)C4=C(O[C@H]5C[C@@H](O)[C@H](O)[C@@H](C)O5)C=CC(O)=C4C3=O)[C@H](O)CC2=C1","pathways":["ACET","GLY"],"atomMap":{"ACET":[0,1,2,3,5,6,7,8,10,11,22,23,24,26,27,29,31,32,33],"GLY":[13,14,15,17,19,20]},"optional":[4,9,12,16,18,21,25,28,30],"difficulty":"hard"},
+  {"name":"72","smiles":"COC1=CC([C@@H]2O[C@H](C3=CC(OC)=C4OCOC4=C3)[C@@H](C)[C@@H]2C)=CC(OC)=C1O","removeAtoms":[0,12,15,26],"pathways":["SHIK"],"atomMap":{"SHIK":[1,2,3,4,6,7,8,9,11,14,15,16,17,18,19,20,21,23]},"cutBonds":[16],"optional":[0,5,10,12,13,22,24],"difficulty":"hard"},
+  {"name":"73","smiles":"COC1=CC2=C(C=C1O)C[C@](O)(CO)[C@H](CO)[C@@H]2C1=CC=C(O[C@@H]2O[C@@H](CO)[C@@H](O)[C@@H](O)[C@H]2O)C(OC)=C1","removeAtoms":[0,36],"pathways":["SHIK","GLY"],"atomMap":{"SHIK":[1,2,3,4,5,6,8,9,11,13,14,16,17,18,19,20,33,35],"GLY":[22,24,25,27,29,31]},"cutBonds":[12,37],"optional":[0,7,10,12,15,21,23,26,28,30,32,34],"difficulty":"hard"},
+  {"name":"74","smiles":"COC(=O)C1=C(O[C@@H]2O[C@@H](C)[C@H](OC)[C@H](OC)[C@H]2OC)C=C2C=C3C(=O)[C@@]4(O)C(=O)C(OC)=CC(=O)[C@@]4(OC)C(=O)C3=C(O)C2=C1C","removeAtoms":[0,13,16,19,32,38],"pathways":["ACET","GLY"],"atomMap":{"ACET":[1,3,4,16,17,18,19,20,22,24,26,28,29,31,33,35,36,38,39,40],"GLY":[6,8,9,10,12,14]},"optional":[0,2,5,7,11,13,15,21,23,25,27,30,32,34,37],"difficulty":"hard"},
+  {"name":"76","smiles":"O=C(/C=C/C1=CC=C(C=C1)O)OC[C@]2(O[C@@H]([C@H]([C@@H]2OC(/C=C/C3=CC=C(C=C3)O)=O)O)COC(/C=C/C4=CC=C(C=C4)O)=O)OC(C)=O","removeAtoms":[45,46,47],"pathways":["SHIK","GLY"],"atomMap":{"SHIK":[1,2,3,4,5,6,7,8,9,19,20,21,22,23,24,25,26,27,33,34,35,36,37,38,39,40,41,43],"GLY":[12,13,15,16,17,31]},"optional":[0,10,11,14,18,28,29,30,32,42,44],"difficulty":"hard"},
   {"name":"77","smiles":"C=C1CC[C@@H](C(C)(C)O)[C@H](O)/C=C(\\C)CC/C=C(\\C)CC[C@@H]1O","pathways":["ISO"],"atomMap":{"ISO":[0,1,2,3,4,5,6,7,9,11,12,13,14,15,16,17,18,19,20,21]},"isoUnits":[[7,5,6,4,9],[13,12,11,14,15],[18,17,16,19,20],[0,1,21,2,3]],"optional":[8,10,22],"difficulty":"medium"},
-  {"name":"78","smiles":"CCC(C(O[C@H]1[C@@H]([C@@]2([C@@H]([C@@H]([C@@]3(C([C@@H]2CC1(C)C)=CC[C@@H]4[C@]5(CC[C@@H](C(C)([C@@H]5CC[C@]43C)C)O[C@@H]6O[C@@H]([C@H]([C@@H]([C@H]6O)O[C@H]7OC[C@H]([C@H]([C@@H]7O)O)O)O)C(O)=O)C)C)O)O)CO)O)=O)C","pathways":["ISO","GLY"],"atomMap":{"ISO":[0,1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,54,55,58,62],"GLY":[32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53]},"isoUnits":[[31,24,25,23,22],[54,20,21,26,27],[30,19,28,18,29],[55,10,11,17,12],[58,7,8,9,6],[16,14,15,13,5],[0,1,2,3,62]],"optional":[4,56,57,59,60,61],"difficulty":"hard"}
+  {"name":"78","smiles":"CCC(C(O[C@H]1[C@@H]([C@@]2([C@@H]([C@@H]([C@@]3(C([C@@H]2CC1(C)C)=CC[C@@H]4[C@]5(CC[C@@H](C(C)([C@@H]5CC[C@]43C)C)O[C@@H]6O[C@@H]([C@H]([C@@H]([C@H]6O)O[C@H]7OC[C@H]([C@H]([C@@H]7O)O)O)O)C(O)=O)C)C)O)O)CO)O)=O)C","pathways":["ISO","GLY"],"atomMap":{"ISO":[0,1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,54,55,58,62],"GLY":[33,35,36,37,38,41,43,44,45,46,51]},"isoUnits":[[31,24,25,23,22],[54,20,21,26,27],[30,19,28,18,29],[55,10,11,17,12],[58,7,8,9,6],[16,14,15,13,5],[0,1,2,3,62]],"optional":[4,32,34,39,40,42,47,48,49,50,52,53,56,57,59,60,61],"difficulty":"hard"}
 ];
 
     /* ============================================================
@@ -1321,6 +1336,7 @@
         showM('m-check-btn', (!answered || mNext) && !authorMode);
         showM('m-eraser-btn', !answered && !authorMode);
         showM('m-reveal-btn', !answered && !authorMode);
+        syncEraserFab();
         // phone: once the answer is right, the big bottom-right button becomes "Next structure"
         const mCheck = document.getElementById('m-check-btn');
         if (mCheck) {
@@ -1407,7 +1423,7 @@
             const keyNum = FIXED_PATHWAYS.indexOf(pathway) + 1;
             const [mainName, subName] = PATH_LABELS[pathway];
             const btn = document.createElement('button');
-            btn.className = "relative text-left p-3 xl:p-4 rounded-2xl transition flex items-center gap-2.5 xl:gap-3.5 cursor-pointer";
+            btn.className = "relative text-left p-3 rounded-2xl transition flex items-center gap-2.5 cursor-pointer";
             btn.title = `${pathLabel(pathway)}. Klicka, eller tryck ${keyNum}, för att välja den här vägen`;
             btn.setAttribute('aria-pressed', isActiveBrush ? 'true' : 'false');
             if (inUse) {
@@ -1418,10 +1434,10 @@
                 btn.className += " bg-slate-900 border-2 border-slate-600 hover:border-slate-400 text-slate-100";
             }
             btn.innerHTML = `
-                <span class="w-9 h-9 xl:w-11 xl:h-11 rounded-full flex-shrink-0 flex items-center justify-center text-lg xl:text-xl font-bold shadow" style="background-color: ${style.hex}; color: ${textOnColor(style.hex)}">${keyNum}</span>
+                <span class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-base font-bold shadow" style="background-color: ${style.hex}; color: ${textOnColor(style.hex)}">${keyNum}</span>
                 <span class="min-w-0 break-words">
-                    <span class="block text-base xl:text-lg font-bold leading-tight ${inUse ? 'text-white' : 'text-slate-100'}">${mainName}</span>
-                    ${subName ? `<span class="block text-sm xl:text-base leading-tight text-slate-400 mt-0.5">${subName}</span>` : ''}
+                    <span class="block text-base font-bold leading-tight ${inUse ? 'text-white' : 'text-slate-100'}">${mainName}</span>
+                    ${subName ? `<span class="block text-sm leading-tight text-slate-400 mt-0.5">${subName}</span>` : ''}
                 </span>
                 ${atomCount > 0 ? `<span class="absolute -top-2 -right-2 min-w-[2rem] h-8 px-2.5 rounded-full flex items-center justify-center text-base font-bold shadow" style="background-color: ${style.hex}; color: ${textOnColor(style.hex)}" title="${atomCount} ${atomWord(atomCount)} färgade">${atomCount}</span>` : ''}`;
             btn.onclick = () => handlePathwayClick(pathway);
@@ -1448,8 +1464,8 @@
         eraser.id = 'eraser-btn';
         eraser.title = 'Klicka på färgade atomer för att ta bort dem (kortkommando: E)';
         eraser.className = (activePathwayBrush === 'ERASER') ? ERASER_ON : ERASER_OFF;
-        eraser.innerHTML = `<span class="w-9 h-9 xl:w-11 xl:h-11 rounded-full flex-shrink-0 flex items-center justify-center text-lg xl:text-xl bg-slate-700">🧹</span>
-            <span class="min-w-0"><span class="block text-base xl:text-lg font-bold leading-tight">Sudd</span><span class="block text-sm xl:text-base leading-tight text-slate-400 mt-0.5">Ta bort atomer</span></span>`;
+        eraser.innerHTML = `<span class="eraser-ico w-8 h-8">${ERASER_SVG}</span>
+            <span class="min-w-0"><span class="block text-base font-bold leading-tight">Sudd</span><span class="block text-sm leading-tight mt-0.5" style="opacity:.8">Ta bort atomer</span></span>`;
         eraser.onclick = equipEraser;
         container.appendChild(eraser);
 
@@ -1457,7 +1473,7 @@
             const me = document.createElement('button');
             me.id = 'm-eraser-btn';
             me.className = (activePathwayBrush === 'ERASER') ? M_ERASER_ON : M_ERASER_OFF;
-            me.textContent = '🧹 Sudd';
+            me.innerHTML = `<span class="eraser-ico" style="width:1.5rem;height:1.5rem;margin-right:0.35rem">${ERASER_SVG}</span>Sudd`;
             me.style.display = (answered || authorMode) ? 'none' : '';
             me.onclick = equipEraser;
             mGrid.appendChild(me);
@@ -1465,14 +1481,27 @@
     }
 
     const MOBILE_NAMES = {
-        [ISO]: 'Isoprenoid', [SHIK]: 'Shikimisyra', [ACET]: 'Acetat',
-        [ALK]: 'Aminosyra', [GLY]: 'Foto&shy;syntes'
+        [ISO]: 'MVA/MEP', [SHIK]: 'Shikimisyra&shy;vägen', [ACET]: 'Acetat&shy;vägen',
+        [ALK]: 'Alifatisk aminosyra', [GLY]: 'Kolhydrat'
     };
-    const M_ERASER_OFF = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[13px] font-bold transition border-[3px] border-slate-600 bg-slate-800 text-slate-100";
-    const M_ERASER_ON  = "relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[13px] font-bold transition border-[3px] border-rose-500 bg-rose-950/70 text-rose-200";
+    // eraser icon (simple line drawing, inherits the text colour)
+    const ERASER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>';
+    const M_ERASER_OFF = "eraser-tile relative rounded-xl px-1 py-1.5 min-h-[52px] flex items-center justify-center text-center leading-tight text-[13px] font-bold transition";
+    const M_ERASER_ON  = M_ERASER_OFF + " is-on";
 
-    const ERASER_OFF = "relative text-left p-3 xl:p-4 rounded-2xl border-2 border-slate-600 bg-slate-900 hover:border-slate-400 text-slate-100 transition cursor-pointer flex items-center gap-2.5 xl:gap-3.5";
-    const ERASER_ON  = "relative text-left p-3 xl:p-4 rounded-2xl border-2 border-rose-500 bg-rose-950/60 text-rose-200 transition cursor-pointer flex items-center gap-2.5 xl:gap-3.5";
+    const ERASER_OFF = "eraser-tile relative text-left p-3 rounded-2xl transition cursor-pointer flex items-center gap-2.5";
+    const ERASER_ON  = ERASER_OFF + " is-on";
+
+    // the round eraser toggle on the drawing: hidden once the answer is checked
+    function syncEraserFab() {
+        const fab = document.getElementById('eraser-fab');
+        if (!fab) return;
+        if (!fab.firstChild) fab.innerHTML = ERASER_SVG + '<span class="lbl">Sudd</span>';
+        const on = activePathwayBrush === 'ERASER';
+        fab.classList.toggle('is-on', on);
+        fab.setAttribute('aria-pressed', on ? 'true' : 'false');
+        fab.style.display = answered ? 'none' : '';
+    }
 
     function updateBrushBanner() {
         const dot = document.getElementById('active-brush-dot');
@@ -1523,6 +1552,7 @@
         // phone: eraser highlight and the "brush in hand" chip on the drawing
         const mEr = document.getElementById('m-eraser-btn');
         if (mEr) mEr.className = (activePathwayBrush === 'ERASER') ? M_ERASER_ON : M_ERASER_OFF;
+        syncEraserFab();
         const chipText = document.getElementById('m-brush-text'), chipDot = document.getElementById('m-brush-dot');
         if (chipText && chipDot) {
             let label = 'Välj en väg nedan och tryck på atomer', col = '#94a3b8';
@@ -1569,12 +1599,24 @@
         const details = {
             width: big ? 1200 : (mid ? 950 : 700),
             height: big ? 900 : (mid ? 700 : 500),
-            bondLineWidth: 2.5,
+            // ACS 1996 proportions (bond length 14.4 pt, line 0.6 pt, 10 pt Arial-like labels, double-bond gap 18%):
+            // the line width scales with the drawing so the ratio to the bond length stays the same for every molecule
+            bondLineWidth: 3.15,
+            scaleBondWidth: true,
+            multipleBondOffset: 0.18,
+            additionalAtomLabelPadding: 0.066,
+            fontFile: 'BuiltinTelexRegular',
+            baseFontSize: 0.9,
+            maxFontSize: 200,
             atoms: paintedIndices,
             highlightAtomColors: highlightAtomColors,
             bonds: highlightBonds,
             highlightBondColors: highlightBondColors,
             highlightRadius: 0.38,
+            // ACS style is all black: every element listed, since RDKit keeps its own colour for any element left out
+            atomColourPalette: { "-1": [0, 0, 0], "1": [0, 0, 0], "5": [0, 0, 0], "7": [0, 0, 0], "8": [0, 0, 0], "9": [0, 0, 0], "11": [0, 0, 0],
+                                 "14": [0, 0, 0], "15": [0, 0, 0], "16": [0, 0, 0], "17": [0, 0, 0], "19": [0, 0, 0], "34": [0, 0, 0],
+                                 "35": [0, 0, 0], "53": [0, 0, 0] },
             // RDKit normally draws an extra wedged H on ring stereocentres; leave it out and show the
             // stereochemistry with a wedge on a carbon bond instead (less clutter, atom numbering unchanged)
             addChiralHs: false
@@ -1712,12 +1754,11 @@
         // wrong atoms also get a ✕ so they never rely on colour alone
         if (gradeResult && !keyRevealed) gradeResult.wrong.forEach(i => { if (coords[i]) badge(coords[i], "✕", "#e11d48", 9, 9); });
 
-        // Optional / either-or markers: only in author mode or once the answer has been revealed (not while checking)
+        // Optional markers: author mode only (students never see them). Either-or markers: author mode, or once the answer is revealed.
         if (authorMode || keyRevealed) {
             const m = masterDatabase[currentIndex];
-            const optSet = authorMode ? authorOptional : new Set(m.optional || []);
             const groups = authorMode ? authorAltGroups : (m.altGroups || []).map(g => ({ atoms: g.atoms }));
-            optSet.forEach(i => { if (coords[i]) badge(coords[i], "•", "#475569", -9, -9, true); });
+            if (authorMode) authorOptional.forEach(i => { if (coords[i]) badge(coords[i], "•", "#475569", -9, -9, true); });
             groups.forEach(g => g.atoms.forEach(i => { if (coords[i]) badge(coords[i], "↔", "#ffffff", -9, 9); }));
         }
         if (authorMode && altDraft) {
@@ -1965,12 +2006,14 @@
             m.atomMap = {};
             Object.keys(key.atomMap).forEach(k => { m.atomMap[CODE_TO_PATH[k] || k] = key.atomMap[k]; });
         }
-        if (key.isoUnits) m.isoUnits = key.isoUnits;
+        // a saved key is a complete snapshot: a field it leaves out (e.g. the last bond break removed) must be
+        // cleared here, otherwise the old value from the file comes back
+        if (key.isoUnits) m.isoUnits = key.isoUnits; else delete m.isoUnits;
         if (key.subunits) {
             m.subunits = {};
             Object.keys(key.subunits).forEach(k => { m.subunits[CODE_TO_PATH[k] || k] = key.subunits[k]; });
-        }
-        if (key.cutBonds) m.cutBonds = key.cutBonds.slice();
+        } else delete m.subunits;
+        if (key.cutBonds) m.cutBonds = key.cutBonds.slice(); else delete m.cutBonds;
         m.optional = key.optional ? key.optional.slice() : [];
         m.altGroups = key.altGroups ? key.altGroups.map(g => ({ atoms: g.atoms.slice(), pathways: g.pathways.slice(), allowBlank: g.allowBlank !== false })) : [];
         if (key.rules !== undefined) m.rules = key.rules;

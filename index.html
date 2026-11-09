@@ -42,6 +42,11 @@
         .zoom-btn .label { font-size: 0.7rem; font-weight: 700; }
 
         /* Isoprene unit chips (desktop panel and phone strip) */
+        /* instructions buttons (desktop header and under the pathways) */
+        .help-btn { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.5rem 1.15rem 0.5rem 0.6rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); border: 2px solid #10b981; color: #d1fae5; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background-color .15s, color .15s; }
+        .help-btn:hover { background: rgba(16, 185, 129, 0.28); color: #fff; }
+        .help-btn .ico { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 9999px; background: #10b981; color: #052e22; font-weight: 800; font-size: 1rem; flex-shrink: 0; }
+        .help-btn-wide { width: 100%; justify-content: center; margin-top: 0.75rem; padding: 0.7rem 1rem; border-radius: 1rem; }
         /* eraser: light, dashed and rose-coloured so it never looks like one more pathway */
         .eraser-tile { background: #fff1f2; border: 2px dashed #f43f5e; color: #9f1239; }
         .eraser-tile:hover { background: #ffe4e6; }
@@ -105,7 +110,7 @@
     <header class="bg-slate-800 border-b border-slate-700 py-3 px-5 hidden lg:flex justify-between items-center gap-4 shadow">
         <div class="flex items-center gap-5">
             <h1 class="text-2xl sm:text-3xl font-bold text-emerald-400">🌿 Farmakognosi: biosyntesträning</h1>
-            <button onclick="openInstructions()" class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold px-5 py-2 rounded-xl text-base tracking-wide border border-slate-500 transition cursor-pointer shadow">📖 INSTRUKTIONER</button>
+            <button onclick="openInstructions()" class="help-btn"><span class="ico" aria-hidden="true">?</span>Instruktioner</button>
         </div>
         <div class="flex items-center gap-4">
             <button id="g-open-btn" onclick="openGauntletStart()" title="En valfri utmaning på tid. Du behöver den inte för att öva." class="px-4 py-2 rounded-xl border-2 border-dashed border-amber-500/70 text-amber-300 hover:bg-amber-500/10 text-sm font-semibold transition cursor-pointer">⚔️ Vill du ha en utmaning? <strong class="text-amber-200 tracking-wide">UTMANINGSLÄGE</strong></button>
@@ -145,6 +150,9 @@
                         💡 Jag har fastnat, visa svaret
                     </button>
                 </div>
+
+                <!-- always within reach, so students who closed the welcome window can find it again -->
+                <button onclick="openInstructions()" class="help-btn help-btn-wide"><span class="ico" aria-hidden="true">?</span>Hur gör jag? Visa instruktionerna</button>
 
                                 <!-- Author mode panel -->
                 <div id="author-panel" class="hidden mt-4 p-3.5 rounded-xl border border-indigo-700 bg-indigo-950/40 space-y-3">
@@ -371,16 +379,19 @@
     <div id="m-instructions-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-3 z-50" onclick="if (event.target === this) closeMobileInstructions()" role="dialog" aria-label="Instruktioner">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl w-full max-w-md max-h-[90%] overflow-y-auto p-5">
             <div class="flex items-center justify-between gap-3 mb-4">
-                <h2 class="text-2xl font-bold text-emerald-400">Instruktioner</h2>
+                <h2 class="text-2xl font-bold text-emerald-400">Välkommen!</h2>
                 <button onclick="closeMobileInstructions()" class="text-slate-300 text-3xl leading-none px-2 py-1" aria-label="Stäng">✕</button>
             </div>
-            <ol class="space-y-4 text-[17px] leading-snug text-slate-100">
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Välj en av de fem biosyntesvägarna.</span></li>
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Tryck på de atomer i strukturen som kommer från den biosyntesvägen. Vissa molekyler kommer från flera vägar. Använd Sudd om du gör fel. Nyp för att zooma in på strukturen om det är svårt att träffa atomerna.</span></li>
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>När du är klar trycker du på <strong class="text-white">”Kontrollera svar”</strong>. Felaktiga eller saknade atomer markeras.</span></li>
-                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>Om molekylen är för svår kan du trycka på <strong class="text-white">”Visa svar”</strong>.</span></li>
+            <p class="text-[16px] leading-snug text-slate-300 mb-4">Här övar du på att se vilka delar av en naturprodukt som kommer från vilken biosyntesväg.</p>
+            <ol class="space-y-3 text-[16px] leading-snug text-slate-100">
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span><strong class="text-white">Välj en biosyntesväg</strong> med knapparna under strukturen.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span><strong class="text-white">Tryck på kolatomerna</strong> som kommer från den vägen. En molekyl kan komma från flera vägar, så byt väg och fortsätt. Nyp för att zooma om det är svårt att träffa atomerna.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>Syre- och kväveatomer behöver du inte markera, men du får göra det om du vill.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>Gjorde du fel? Använd <strong class="text-white">Sudd</strong>, knappen uppe till höger på strukturen eller bland vägarna.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">5</span><span>Tryck på <strong class="text-white">”Kontrollera svar”</strong>. Felaktiga och saknade atomer markeras så att du kan rätta dem.</span></li>
+                <li class="flex gap-3"><span class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">6</span><span>Fastnat? <strong class="text-white">”Visa svar”</strong> visar facit.</span></li>
             </ol>
-            <button onclick="closeMobileInstructions()" class="mt-5 w-full py-3 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white text-lg font-bold">Okej</button>
+            <button onclick="closeMobileInstructions()" class="mt-5 w-full py-3 rounded-xl bg-emerald-600 active:bg-emerald-700 text-white text-lg font-bold">Okej, sätt igång!</button>
         </div>
     </div>
 
@@ -434,17 +445,22 @@
     <div id="instructions-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50" onclick="if (event.target === this) closeInstructions()">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-8">
             <div class="flex items-start justify-between gap-4 mb-6">
-                <h2 class="text-3xl font-bold text-emerald-400">Instruktioner</h2>
+                <h2 class="text-3xl font-bold text-emerald-400">Välkommen!</h2>
                 <button onclick="closeInstructions()" class="text-slate-300 hover:text-white text-3xl leading-none px-2 cursor-pointer" aria-label="Stäng">✕</button>
             </div>
-            <ol class="space-y-5 text-xl leading-relaxed text-slate-100">
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span>Välj en av de fem biosyntesvägarna.</span></li>
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span>Klicka på de atomer i strukturen som kommer från den biosyntesvägen. Vissa molekyler kommer från flera vägar. Använd Sudd om du gör fel.</span></li>
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>När du är klar trycker du på <strong class="text-white">”Kontrollera mitt svar”</strong>. Felaktiga eller saknade atomer markeras.</span></li>
-                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>Om molekylen är för svår kan du klicka på <strong class="text-white">”Jag har fastnat, visa svaret”</strong>.</span></li>
+            <p class="text-lg leading-relaxed text-slate-300 mb-4">Här övar du på att se vilka delar av en naturprodukt som kommer från vilken biosyntesväg.</p>
+            <ol class="space-y-4 text-lg leading-relaxed text-slate-100">
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">1</span><span><strong class="text-white">Välj en biosyntesväg</strong> med knapparna till vänster.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">2</span><span><strong class="text-white">Klicka på kolatomerna</strong> som kommer från den vägen. En molekyl kan komma från flera vägar, så byt väg och fortsätt.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">3</span><span>Syre- och kväveatomer behöver du inte markera, men du får göra det om du vill.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">4</span><span>Gjorde du fel? Använd <strong class="text-white">Sudd</strong>, knappen uppe till höger på strukturen eller bland vägarna.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">5</span><span>Tryck på <strong class="text-white">”Kontrollera mitt svar”</strong>. Felaktiga och saknade atomer markeras så att du kan rätta dem.</span></li>
+                <li class="flex gap-4"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center flex-shrink-0">6</span><span>Fastnat? <strong class="text-white">”Jag har fastnat, visa svaret”</strong> visar facit.</span></li>
             </ol>
-            <p class="mt-7 text-base text-slate-400">Kortkommandon: tryck 1–5 för att välja väg, E för sudd och + / − för att zooma.</p>
-            <button onclick="closeInstructions()" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold cursor-pointer">Okej</button>
+            <p class="mt-6 text-base text-slate-300">Vill du testa dig själv? Prova <strong class="text-amber-300">Utmaningsläget ⚔️</strong> (5, 10 eller 15 strukturer mot klockan).</p>
+            <p class="mt-3 text-base text-slate-400">Kortkommandon: tryck 1–5 för att välja väg, E för sudd och + / − för att zooma.</p>
+            <p class="mt-3 text-base text-slate-400">Ser du något fel eller har du frågor? Kontakta kursledaren <strong class="text-slate-200">Luke Robertson</strong>.</p>
+            <button onclick="closeInstructions()" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold cursor-pointer">Okej, sätt igång!</button>
         </div>
     </div>
 
@@ -754,6 +770,7 @@
 
     function initApp() {
         setupColumnResizer();
+        showIntroOnFirstVisit();
         if (typeof window.initRDKitModule === 'undefined') {
             document.getElementById('rdkit-svg-container').innerHTML = `<p class="text-xs text-rose-400">Fel: kemimotorn RDKit kunde inte laddas. Kontrollera internetanslutningen och ladda om sidan.</p>`;
             return;
@@ -2256,10 +2273,19 @@
     /* ============================================================
        COMPOUND EDITING + NAVIGATION
        ============================================================ */
+    // First visit: open the instructions by themselves. Closing them (either version) remembers it in this browser.
+    const INTRO_KEY = 'pharmaco_intro_seen_v1';
+    function markIntroSeen() { try { localStorage.setItem(INTRO_KEY, '1'); } catch (e) {} }
+    function showIntroOnFirstVisit() {
+        let seen = false;
+        try { seen = !!localStorage.getItem(INTRO_KEY); } catch (e) {}
+        if (seen) return;
+        if (window.innerWidth < 1024) openMobileInstructions(); else openInstructions();
+    }
     function openMobileInstructions() { document.getElementById('m-instructions-modal').classList.remove('hidden'); }
-    function closeMobileInstructions() { document.getElementById('m-instructions-modal').classList.add('hidden'); }
+    function closeMobileInstructions() { document.getElementById('m-instructions-modal').classList.add('hidden'); markIntroSeen(); }
     function openInstructions() { document.getElementById('instructions-modal').classList.remove('hidden'); }
-    function closeInstructions() { document.getElementById('instructions-modal').classList.add('hidden'); }
+    function closeInstructions() { document.getElementById('instructions-modal').classList.add('hidden'); markIntroSeen(); }
 
     let modalMode = 'edit';
     function setModalMode(mode) {
